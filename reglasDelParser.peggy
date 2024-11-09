@@ -1,5 +1,6 @@
- {
 
+    
+{
 function createProperty(key, value) {
   return { [key]: value }; // Return as before for non-object values
 }
@@ -173,7 +174,10 @@ function asignarNumeroDeCompas(listaDeCompases){
   
 } 
 
-start = _ (pista / estadoGlobal)* {return datosDelPrograma }
+
+
+//start = _ (pista / estadoGlobal)* {return datosDelPrograma }
+start = (_ LineComment / _ MultiLineComment / _ pista / _ estadoGlobal)* _ EndOfInput {return datosDelPrograma }
 estadoGlobal
   = _ k:("armonia" / "acordes") _ v:listaDeAcordesGlobales _ ";" _ {
           if (v.length == 0) {
@@ -196,7 +200,8 @@ estadoGlobal
     error("paneo requiere un número entre 0 y 1");
   }
   }
-
+  
+     
 pista 
   = _ i:instrumentIdentifier  _ p:listaDePropiedades? _ ";" _ {
     // Prepare the musical object by merging properties (if any)
@@ -355,7 +360,26 @@ notaMidi
    }
 
 cualidad
-   = "mayor" {return 'maj'} / "maj" / "min" / "menor" {return 'min'} / "m" / "M"
+   = "M7"
+   / "M"
+   / "mayor7" {return 'maj7'} 
+   / "mayor" {return 'maj'} 
+   / "maj7"
+   / "maj" 
+   / "min7"
+   / "min" 
+   / "menor7b5" {return 'm7b5'}  
+   / "menor7" {return 'min7'}
+   / "menor" {return 'min'}  
+   / "m7b5"
+   / "m7"
+   / "m"
+   / "dim"
+   / "aug"
+   / "sus2"
+   / "sus4"
+   
+   
     
 alteracion
   = "#" / "bb" / "b" / "x" 
@@ -368,7 +392,13 @@ alfabetoIngles
   = $[A, B, C, D, E, F, G] 
   
 alfabetoLatino
-  = 'do' {return 'C'} / 're' {return 'D'} / 'mi' {return 'E'} / 'fa' {return 'F'} / 'sol' {return 'G'} / 'la' {return 'A'} / 'si' {return 'B'}
+  = 'do' {return 'C'} 
+  / 're' {return 'D'} 
+  / 'mi' {return 'E'} 
+  / 'fa' {return 'F'} 
+  / 'sol' {return 'G'} 
+  / 'la' {return 'A'} 
+  / 'si' {return 'B'}
 
 ////ritmo más grados del bajo
 
@@ -472,10 +502,16 @@ listaDeAcordeGlobal
           } else return ls
          }
    
-acordeGlobal = _ letra:letra alteracion:alteracion? cualidad:cualidad? _ {
+acordeGlobal = _ letra:letra alteracion:alteracion? _ cualidad:cualidad? _ {
   return letra + (alteracion ?? "") + (cualidad ?? "");
 }
+
+
+
+
+
 //////////////////
+// A rule to skip whitespace and line comments
 
 decimal 
    = head:entero tail: ("." entero)? {
@@ -498,5 +534,25 @@ string
 
 word
   = $[a-z]i+
+  
+  
+// Single-line comment rule
+LineComment
+  = "//" (![\r\n] .)*  // Matches "//" followed by any characters except a newline
+  { return null; }
 
-_ = [ \t\r\n]*
+
+// Multi-line comment rule
+MultiLineComment
+  = "/*" (!"*/" .)* "*/"  // Matches "/* ... */" multi-line comments
+  { return null; }
+
+
+// Match and ignore whitespace, comments, or the end of input
+_
+  = [ \t\r\n]* (LineComment / MultiLineComment)* [ \t\r\n]*
+
+
+// Define a rule that only matches the end of input
+EndOfInput
+  = !.  // Matches only if there's no more input (end of file)

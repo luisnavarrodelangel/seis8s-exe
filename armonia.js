@@ -78,24 +78,29 @@ function asignarNotasDelTecladoSegunGradosDelAcorde(elementoParte, chordProperti
   const octava = octavaAbsoluta + elementoParte.octavaRelativa;
   let chordNotes = [];
 
-  if (grados[grado] !== null) {
-    chordNotes.push(grados[grado] + String(octava));
-    // Add other chord notes based on the initial degree
-    if (grado === 1) {
-      chordNotes.push(grados[3] + String(octava), grados[5] + String(octava));
-    } else if (grado === 3) {
-      chordNotes.push(grados[1] + String(octava), grados[5] + String(octava));
-    } else if (grado === 5) {
-      chordNotes.push(grados[1] + String(octava), grados[3] + String(octava));
-    } else if (grado === 7) {
-      chordNotes.push(grados[1] + String(octava), grados[3] + String(octava), grados[5] + String(octava));
-    }
+  if (grados[grado] !== null){
+    if (grados[7] === null) {
+    chordNotes.push(grados[1] + String(octava), grados[3] + String(octava), grados[5] + String(octava));
+  } else {
+    chordNotes.push(grados[1] + String(octava), grados[3] + String(octava), grados[5] + String(octava), grados[7] + String(octava));
   }
+}
 
   elementoParte.note = chordNotes;
   // console.log("elementoParte", elementoParte);
   return elementoParte;
 }
+
+ // Add other chord notes based on the initial degree
+    // if (grado === 1) {
+    //   chordNotes.push(grados[3] + String(octava), grados[5] + String(octava));
+    // } else if (grado === 3) {
+    //   chordNotes.push(grados[1] + String(octava), grados[5] + String(octava));
+    // } else if (grado === 5) {
+    //   chordNotes.push(grados[1] + String(octava), grados[3] + String(octava));
+    // } else if (grado === 7) {
+    //   chordNotes.push(grados[1] + String(octava), grados[3] + String(octava), grados[5] + String(octava));
+    // }
 
 
 // :: [{time, note, duration} , ... ] -> [{tonal chord}] -> [{time, note duration}, ...]
