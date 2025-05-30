@@ -277,7 +277,7 @@ function contrasSamplerF(sonidoContratiempos, id, volumen, paneo) {
   // Initialize the sampler if it's not already created
   if (!contrasSampler[id] || contrasSampler[id].baseUrl !== newBaseUrl) {
   contrasSampler[id] = new Tone.Sampler({
-      urls: { C4: "F#2.wav" },
+      urls: { C4: "F%232.wav" },
       release: 1,
       baseUrl: newBaseUrl
     });
