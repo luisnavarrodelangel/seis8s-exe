@@ -1,14 +1,14 @@
 import * as i from "./instrumento.js";
 import * as p from "./programa.js";
 import * as parser from "./parser.mjs";
-
+import * as s from './sonidos.js';
 
 
 const app = Vue.createApp({
   
 
   data() {
-    return {
+    return {    
      output: '',
 //       titulo y banner
       mostrarBarraHorizontalSuperiorTituloYBanner: true,
@@ -144,12 +144,33 @@ const app = Vue.createApp({
 
       // Call mandarSaludos when the voices have been populated
       // this.mandarSaludos();
+
+  // Preload audio from sonidos
+   this.initializeSounds();
+
     };
   },
   
   
 
   methods: {
+   
+    async initializeSounds() {
+    
+      try {
+        // Make sure Tone.js is started (required for user interaction)
+        if (Tone.context.state !== 'running') {
+          console.log('Tone.js context not started yet. Will start on user interaction.');
+        }
+        
+        //Preload all sounds at once
+        await s.preloadAllSounds();       
+
+      } catch (error) {
+        console.error('Failed to preload sounds:', error);
+      } 
+    },
+    
   
    agregaUnDocADocs() {
      

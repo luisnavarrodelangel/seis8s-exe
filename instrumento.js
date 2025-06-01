@@ -191,23 +191,22 @@ let sequences = {};  // Object to store sequences dynamically by id
 let congaSampler = {};  // Initialize bomboSampler as an object to store multiple samplers
 let canalDeLaConga = {}; // Initialize canalDelBombo as an object to store multiple channels
 
-function congaSamplerF(sonidoConga, id, volumen, paneo) {
+export function congaSamplerF(indiceSonido, id, volumen, paneo) {
   
-  let newBaseUrl = "https://luisnavarrodelangel.github.io/sonidos-seis8s/" + sonidoConga;
-
   // Initialize the sampler if it's not already created  
-  if (!congaSampler[id] || congaSampler[id].baseUrl !== newBaseUrl) {
+  if (!congaSampler[id] || congaSampler[id]._currentSound !== indiceSonido) {
     congaSampler[id] = new Tone.Sampler({
-      urls: { 
-        C4: "quinto_abierto.wav", 
-        D4: "quinto_palma.wav",
-        E4: "quinto_muteado.wav", 
-        F4: "quinto_talon.wav",
-        G4: "quinto_punta.wav"
-      },
-      release: 1,
-      baseUrl: newBaseUrl
+      urls: {
+        C4: s.getAudioBuffer("congas", indiceSonido).get('quinto_abierto'),
+        D4: s.getAudioBuffer("congas", indiceSonido).get('quinto_palma'),
+        E4: s.getAudioBuffer("congas", indiceSonido).get('quinto_muteado'),
+        F4: s.getAudioBuffer("congas", indiceSonido).get('quinto_talon'),
+        G4: s.getAudioBuffer("congas", indiceSonido).get('quinto_punta')
+      }, 
+      release: 1
     });
+    congaSampler[id]._currentSound = indiceSonido; // Store current sound for comparison
+
   }
 
   // Initialize the channel if not created yet
@@ -234,17 +233,17 @@ function congaSamplerF(sonidoConga, id, volumen, paneo) {
 let bomboSampler = {};  // Initialize bomboSampler as an object to store multiple samplers
 let canalDelBombo = {}; // Initialize canalDelBombo as an object to store multiple channels
 
-function bomboSamplerF(sonidoBombo, id, volumen, paneo) {
-  
-  let newBaseUrl = "https://luisnavarrodelangel.github.io/sonidos-seis8s/" + sonidoBombo;
+export function bomboSamplerF(indiceSonido, id, volumen, paneo) {
 
-  // Initialize the sampler if it's not already created  
-  if (!bomboSampler[id] || bomboSampler[id].baseUrl !== newBaseUrl) {
+   // Initialize the sampler if it's not already created or if sound changed
+   if (!bomboSampler[id] || bomboSampler[id]._currentSound !== indiceSonido) {
+
     bomboSampler[id] = new Tone.Sampler({
-      urls: { C4: "C2.wav" },
-      release: 1,
-      baseUrl: newBaseUrl
+      urls: {C4: s.getAudioBuffer("bombo", indiceSonido).get('C2')}, // Use indiceSonido as index
+      release: 1
     });
+    bomboSampler[id]._currentSound = indiceSonido; // Store current sound for comparison
+    
   }
 
   // Initialize the channel if not created yet
@@ -270,17 +269,16 @@ let contrasSampler = {};
 let canalDelContratiempo = {};
 
 
-function contrasSamplerF(sonidoContratiempos, id, volumen, paneo) {
+export function contrasSamplerF(indiceSonido, id, volumen, paneo) {
   
-  let newBaseUrl = "https://luisnavarrodelangel.github.io/sonidos-seis8s/" + sonidoContratiempos;
 
   // Initialize the sampler if it's not already created
-  if (!contrasSampler[id] || contrasSampler[id].baseUrl !== newBaseUrl) {
+  if (!contrasSampler[id] || contrasSampler[id]._currentSound !== indiceSonido) {
   contrasSampler[id] = new Tone.Sampler({
-      urls: { C4: "F%232.wav" },
-      release: 1,
-      baseUrl: newBaseUrl
-    });
+    urls: {C4: s.getAudioBuffer("contratiempo", indiceSonido).get('F%232')}, // Use indiceSonido as index
+    release: 1
+      });
+      contrasSampler[id]._currentSound = indiceSonido; // Store current sound for comparison
 }
 
     // Initialize the channel if not created yet
@@ -307,21 +305,15 @@ function contrasSamplerF(sonidoContratiempos, id, volumen, paneo) {
 let tecladoSampler = {};
 let canalDelTeclado = {};
 
-function tecladoSamplerF(sonidoTeclado, id, volumen, paneo) {
-  
-   let newBaseUrl = "https://luisnavarrodelangel.github.io/sonidos-seis8s/" + sonidoTeclado;
-
-  
-  if (!tecladoSampler[id] || tecladoSampler[id].baseUrl !== newBaseUrl) {
+export function tecladoSamplerF(indiceSonido, id, volumen, paneo) {
+   
+  if (!tecladoSampler[id] || tecladoSampler[id]._currentSoundIndex !== indiceSonido) {
    tecladoSampler[id] = new Tone.Sampler({
-        urls: {
-          C5: "C5.wav"
-        },
-        release: 1, 
-        baseUrl: newBaseUrl
-
+          urls: {C5: s.getAudioBuffer("teclado", indiceSonido).get('C5')}, // Use indiceSonido as index
+        release: 1
       });
-  }
+      tecladoSampler[id]._currentSoundIndex = indiceSonido; // Store current sound for comparison 
+    }
   
   if (!canalDelTeclado[id]) {    
    canalDelTeclado[id] = new Tone.Channel({
@@ -343,21 +335,15 @@ function tecladoSamplerF(sonidoTeclado, id, volumen, paneo) {
 let bajoSampler = {};
 let canalDelBajo = {};
 
-function bajoSamplerF(sonidoBajo, id, volumen, paneo) {
+export function bajoSamplerF(indiceSonido, id, volumen, paneo) {
     
-  // Check if the sound has changed
-  let newBaseUrl = "https://luisnavarrodelangel.github.io/sonidos-seis8s/" + sonidoBajo;
 
   // Initialize or update the sampler if the sound has changed
-  if (!bajoSampler[id] || bajoSampler[id].baseUrl !== newBaseUrl) {
+  if (!bajoSampler[id] || bajoSampler[id]._currentSoundIndex !== indiceSonido) {
     
      bajoSampler[id] = new Tone.Sampler({
-        urls: {
-          C4: "C4.wav"
-          
-        },
-        release: 1, 
-        baseUrl: newBaseUrl // Set the new sound URL
+      urls: {C4: s.getAudioBuffer("bajo", indiceSonido).get('C4')}, // Use indiceSonido as index
+        release: 1
       });
     } 
   
@@ -397,8 +383,8 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
   if (instrumento === "bajo") {
 
-    let sonidoBajo = s.sonidos.bajo[indiceSonido].nombre;
-    bajoSamplerF(sonidoBajo, id, volumen, paneo)
+    // let indiceSonido = s.sonidos.bajo[indiceSonido].nombre;
+    bajoSamplerF(indiceSonido, id, volumen, paneo)
 
      
       if (parte.length == 0 ) {  
@@ -448,8 +434,8 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
   if (instrumento === "teclado"){
       
-    let sonidoTeclado = s.sonidos.teclado[indiceSonido].nombre;  
-    tecladoSamplerF(sonidoTeclado, id, volumen, paneo);
+    // let indiceSonido = s.sonidos.teclado[indiceSonido].nombre;  
+    tecladoSamplerF(indiceSonido, id, volumen, paneo);
     
      if (parte.length  == 0) {  // Logical operator corrected
         console.log("¡Comenzando secuencia del teclado!");
@@ -519,8 +505,8 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
      
      
 
-    let sonidoBombo = s.sonidos.bombo[indiceSonido].nombre;
-     bomboSamplerF(sonidoBombo, id, volumen, paneo);
+    // let indiceSonido = s.sonidos.bombo[indiceSonido].nombre;
+     bomboSamplerF(indiceSonido, id, volumen, paneo);
      
      if (parte.length == 0 ) {  
         console.log("¡Comenzando secuencia del bombo!");
@@ -565,8 +551,8 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
   
   if (instrumento === "contratiempo" || instrumento === "contratiempos" || instrumento === "contras")  {
     
-    let sonidoContratiempos = s.sonidos.contratiempo[indiceSonido].nombre;
-    contrasSamplerF(sonidoContratiempos, id, volumen, paneo);     
+    // let indiceSonido = s.sonidos.contratiempo[indiceSonido].nombre;
+    contrasSamplerF(indiceSonido, id, volumen, paneo);     
   
     if (parte.length == 0 ) {  
         console.log("¡Comenzando secuencia del contratiempo!");
@@ -610,8 +596,8 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
   
   if (instrumento === "congas")  {
     
-    let sonidoConga = s.sonidos.congas[indiceSonido].nombre;
-    congaSamplerF(sonidoConga, id, volumen, paneo);     
+    // let indiceSonido = s.sonidos.congas[indiceSonido].nombre;
+    congaSamplerF(indiceSonido, id, volumen, paneo);     
   
     if (parte.length == 0 ) {  
         console.log("¡Comenzando secuencia del conga!");
