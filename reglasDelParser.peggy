@@ -298,7 +298,7 @@ propiedad
 
 // TODO lista de lista de parte
 listaDeCompases
-  =  _ ls:compas|.., _| _ {
+  =  _ "[" _ ls:compas|.., _ "|" _ | _ "]"  {
         // Aplanar cualquier compás que sea un array de compases (por repeticiones)
     let compasesAplanados = [];
     ls.forEach(compas => {
@@ -314,40 +314,54 @@ listaDeCompases
      return asignarNumeroDeCompas(compasesAplanados)
      }
      
+compas
+  = compasConRepeticion
+  / compasSimple
 
-compas 
-   =  _ "|" _ ls:parte|.., _| _ "|" _ repeticion:repeticionCompas? _ {
+
+
+  
+compasSimple 
+   = _  ls:parte|.., _| _ {
     let tamanoDelCompas = ls.reduce((acc, obj) => acc + duracionNotaADuracionEnTiempo(obj.duration), 0);
 
     if (tamanoDelCompas == datosDelPrograma.estadoGlobal.compas) {
       let compasBase = asignarPosTiempoDeNotasPorCompas(ls);  // [{ time: '1n', note: 'C4', duration: '1n'}, ...]
-   
-   // si hay repeticion, crear multiples compases
-   if (repeticion && repeticion.veces > 1) {
-    let compasesRepetidos = [];
-      for (let i = 0; i < repeticion.veces; i++) {
-        //crear una copia profunda del compas base
-        let compasCopiado = compasBase.map(nota => ({
-           ...nota,
-           //mantener el tiempo original - se ajustara despues en asignarNumeroDeCompas
-           time: nota.time
-        }));
-        compasesRepetidos.push(compasCopiado);
-      } 
-      return compasesRepetidos; // retorna el array de compases (siempre array, incluso para x1)
-   }
-    return compasBase; // retorna un solo compas (no array)
+      return compasBase; // retorna un solo compas (no array)
 
     } else if (tamanoDelCompas < datosDelPrograma.estadoGlobal.compas) {
       return error('El tamano del compas es menor a ' + datosDelPrograma.estadoGlobal.compas)
     } else if (tamanoDelCompas > datosDelPrograma.estadoGlobal.compas) {
       return error('El tamano del compas es mayor a ' + datosDelPrograma.estadoGlobal.compas)
+    }
   }
-}
+
+compasConRepeticion 
+  = ":" _ notas:parte|.., _| _ ":" _ rep:repeticionCompas {
+      let tamanoDelCompas = notas.reduce((acc, obj) => acc + duracionNotaADuracionEnTiempo(obj.duration), 0);
+
+  if (tamanoDelCompas == datosDelPrograma.estadoGlobal.compas) {
+
+      let compasBase = asignarPosTiempoDeNotasPorCompas(notas);
+      let compases = [];
+
+      for (let i = 0; i < rep.veces; i++) {
+        compases.push(compasBase.map(n => ({ ...n, time: n.time })));
+      }
+
+      return compases;
+  } else if (tamanoDelCompas < datosDelPrograma.estadoGlobal.compas) {
+      return error('El tamano del compas es menor a ' + datosDelPrograma.estadoGlobal.compas)
+    } else if (tamanoDelCompas > datosDelPrograma.estadoGlobal.compas) {
+      return error('El tamano del compas es mayor a ' + datosDelPrograma.estadoGlobal.compas)
+    }
+  }
+
+
    
 //nueva regla para manejar la sintaxis de repeticion
 repeticionCompas
-  = "|" _ "x" _ veces:entero _  "|" {
+  =  veces:entero  {
     return {veces: veces}
   } 
 
