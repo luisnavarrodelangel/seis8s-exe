@@ -35,9 +35,12 @@ export const sonidos = {
   ], 
    congas: [
     { nombre: "quinto-set-uno/" },
-    { nombre: "quinto-set-dos/" }
-   
+    { nombre: "quinto-set-dos/" }, 
+   ],
+  guiro: [
+    {nombre: "guiro-metalico/"}
   ]
+   
 };
 
 // Store preloaded buffers
@@ -54,6 +57,7 @@ function generateSoundUrls(category, soundConfig) {
     bajo: ['C4'], // Bass typically uses C2
     teclado: ['C5'], // Piano/keyboard uses C4
     bombo: ['C2'], // Kick drum uses C2
+    guiro: ['C2'],
     contratiempo: ['F%232'], // Snare/backbeat uses C2
     congas: ['quinto_abierto', 'quinto_palma', 'quinto_muteado', 'quinto_talon', 'quinto_punta'] 
   };

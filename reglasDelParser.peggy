@@ -230,7 +230,7 @@ pista
      }  
    
    if (pista.parte.type === "ritmo"){
-     	if (pista.name != "bombo" && pista.name != "contratiempo" && pista.name != "contratiempos" && pista.name != "contras") {
+     	if (pista.name != "bombo" && pista.name != "contratiempo" && pista.name != "contratiempos" && pista.name != "contras" && pista.name != "guiro") {
      		error(` ${pista.name} no usa ${pista.parte.type}`);     
      	}    
      }
@@ -262,6 +262,7 @@ instrumentIdentifier
   = i:"bajo" {return createProperty("name", i)}
   / i:"teclado" {return createProperty("name", i)}
   / i:"bombo" {return createProperty("name", i)}
+  / i:"guiro" {return createProperty("name", i)}
   / i:("contras" / "contratiempos" / "contratiempo") {return createProperty("name", i)}
   / i:"congas" {return createProperty("name", i)}
   

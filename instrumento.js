@@ -39,6 +39,18 @@ export function stopSequence() {
     canalDelBombo[id].dispose();
     delete canalDelBombo[id];  // Remove reference
   });
+
+    // Dispose of all samplers
+    Object.keys(guiroSampler).forEach(id => {
+      guiroSampler[id].dispose();
+      delete guiroSampler[id];  // Remove reference
+    });
+  
+    // Dispose of all channels
+    Object.keys(canalDelGuiro).forEach(id => {
+      canalDelGuiro[id].dispose();
+      delete canalDelGuiro[id];  // Remove reference
+    });
   
    // Dispose of all samplers
   Object.keys(contrasSampler).forEach(id => {
@@ -124,6 +136,20 @@ export function desconectarPistasBorradas(id) {
       delete canalDelBombo[id];
     }
   
+    if (guiroSampler[id]) {
+      guiroSampler[id].releaseAll();
+      guiroSampler[id].disconnect();
+      guiroSampler[id].dispose();
+      delete guiroSampler[id];
+    }
+
+    if (canalDelGuiro[id]) {
+      canalDelGuiro[id].disconnect();
+      canalDelGuiro[id].dispose();
+      delete canalDelGuiro[id];
+    }
+  
+
    if (contrasSampler[id]) {
       contrasSampler[id].releaseAll();
       contrasSampler[id].disconnect();
@@ -295,6 +321,42 @@ export function contrasSamplerF(indiceSonido, id, volumen, paneo) {
       
       contrasSampler[id].connect(canalDelContratiempo[id]);  // Connect once
 
+}
+
+
+///////////// Sampler del guiro ///////////// 
+
+
+let guiroSampler = {};  // Initialize guiroSampler as an object to store multiple samplers
+let canalDelGuiro = {}; // Initialize canalDelguiro as an object to store multiple channels
+
+export function guiroSamplerF(indiceSonido, id, volumen, paneo) {
+
+   // Initialize the sampler if it's not already created or if sound changed
+   if (!guiroSampler[id] || guiroSampler[id]._currentSound !== indiceSonido) {
+
+    guiroSampler[id] = new Tone.Sampler({
+      urls: {C4: s.getAudioBuffer("guiro", indiceSonido).get('C2')}, // Use indiceSonido as index
+      release: 1
+    });
+    guiroSampler[id]._currentSound = indiceSonido; // Store current sound for comparison
+    
+  }
+
+  // Initialize the channel if not created yet
+  if (!canalDelGuiro[id]) {
+    canalDelGuiro[id] = new Tone.Channel({
+      volume: normalizarVolumen(volumen), // Initial volume
+      pan: (paneo * 2) - 1,  // Initial pan
+    }).toDestination();
+  } else {
+    // If the channel already exists, update its parameters
+    canalDelGuiro[id].volume.value = normalizarVolumen(volumen);
+    canalDelGuiro[id].pan.value = (paneo * 2) - 1;
+  }
+
+  // Connect the sampler to its corresponding channel
+  guiroSampler[id].connect(canalDelGuiro[id]);  // Connect the sampler to the channel
 }
 
    
@@ -634,6 +696,53 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
      });
    }
   }
+
+
+   ///////////// guiro /////////////
+
+
+   if (instrumento === "guiro") {   
+     
+     
+
+    // let indiceSonido = s.sonidos.guiro[indiceSonido].nombre;
+     guiroSamplerF(indiceSonido, id, volumen, paneo);
+     
+     if (parte.length == 0 ) {  
+        console.log("¡Comenzando secuencia del guiro!");
+
+        // Create and start the sequence
+        
+      Tone.loaded().then(() => {
+      console.log("Sampler fully loaded!");
+        sequences[id] = new Tone.Sequence((time, note) => {
+          guiroSampler[id].triggerAttackRelease(note, 0.1, time);
+        }, notas, '1m');   // '1m' represents one measure as the interval
+
+        sequences[id].start(0);
+
+      });
+
+  } else if (parte.length > 0) {
+     console.log("¡Comenzando ritmo del guiro!")
+
+      let parteDelguiro =  r.filtrarYaplanarParte(parte)
+
+      Tone.loaded().then(() => {
+       sequences[id] = new Tone.Part((time, value) => {
+        guiroSampler[id].triggerAttackRelease(value.note, value.duration, time);
+    }, parteDelguiro).start(0);
+        
+      console.log('Sequence created for guiro' + id.toString(), id, sequences[id]);
+
+      sequences[id].loop = true; // Enable looping
+  
+       let numeroDeCompases = a.numberOfMeasures(parteDelguiro);
+       sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+     })
+   }
+   }
+  
   
 }
   
