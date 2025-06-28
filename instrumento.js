@@ -476,7 +476,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
      Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
-        bajoSampler[id].triggerAttackRelease(value.note, value.duration, time);
+        bajoSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
     }, _parte).start(0);
        
        
@@ -639,7 +639,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
      
       Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
-        contrasSampler[id].triggerAttackRelease(value.note, value.duration, time);
+        contrasSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
     }, parteDelContratiempo).start(0);
         
       console.log('Sequence created for contras' + id.toString(), id, sequences[id]);
@@ -730,7 +730,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
       Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
-        guiroSampler[id].triggerAttackRelease(value.note, value.duration, time);
+        guiroSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
     }, parteDelguiro).start(0);
         
       console.log('Sequence created for guiro' + id.toString(), id, sequences[id]);

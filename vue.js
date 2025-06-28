@@ -91,7 +91,7 @@ const app = Vue.createApp({
       delay: 100, // Adjust the delay as needed
       initXPlusSsign: 575.524,
       espacioPlusSignYtab: 0.736,
-      docs:[{name: "Documento 0", documentoActivo: true, textareaId: "textarea 0", xDocTab: 406.506, xCerrarDocIcono: 549.422, textEditor: ` tempo 100; \n armonia |Cmaj||Dm|; \n teclado (v 0.75, acompañamiento | 𝄽  𝅘𝅥  𝄽  𝅘𝅥 || 𝄽  𝅘𝅥  𝄽  𝅘𝅥 |);\n bajo (v 1, s 3, tumbao | 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 || 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 |); \n bombo ( v 0.90, ritmo | 𝅘𝅥  𝄽 𝅘𝅥 𝅘𝅥 |); \n contras ( v 0.9, ritmo |𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮|);`,
+      docs:[{name: "Documento 0", documentoActivo: true, textareaId: "textarea 0", xDocTab: 406.506, xCerrarDocIcono: 549.422, textEditor: ` tempo 100; \n armonia |Cmaj||Dm|; \n teclado (v 0.75, acompañamiento [ 𝄽  𝅘𝅥  𝄽  𝅘𝅥 | 𝄽  𝅘𝅥  𝄽  𝅘𝅥 ]);\n bajo (v 1, s 3, tumbao [ 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 | 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 ]); \n bombo ( v 0.90, ritmo [ 𝅘𝅥  𝄽 𝅘𝅥 𝅘𝅥 ]); \n guiro ( v 0.9, ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]);`,
 }],
 //       expandir pantalla
       pantallaCompletaVerticalmente: false,

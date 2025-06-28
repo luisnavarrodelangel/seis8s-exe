@@ -23,7 +23,7 @@
         case 'contratiempo':
         case 'contratiempos':
         case 'contras':
-          return getContratiempoVelocity(beatPosition, parte);
+          return getContratiempoVelocity(beatPosition);
         case 'bajo':
           return getBajoVelocity(beatPosition, noteIndex);
         case 'teclado':
@@ -33,55 +33,25 @@
       }
     }
     
-function getGuiroVelocity(beatPosition, parte) {
-    // Enhanced cumbia güiro pattern with 32nd note subdivisions
-    const fineCumbiaPattern = {
-        // Beat 1 with 32nd note subdivisions
-          // Beat 1
-        0: 0.7,       // Strong downbeat scrape (HIGH)
-        0.125: 0.1,   // 32nd note ghost (LOW)
-        0.25: 0.3,    // 16th note light scrape (LOW-MED)
-        0.375: 0.15,  // 32nd note ghost (LOW)
-        0.5: 0.4,     // 8th note upbeat (MEDIUM)
-        0.625: 0.2,   // 32nd note ghost (LOW)
-        0.75: 0.3,    // 16th note (LOW-MED)
-        0.875: 0.25,  // 32nd note (LOW)
+    function getGuiroVelocity(beatPosition, parte) {
+      // Cumbia güiro pattern with proper accents
+      const cumbiaPattern = {
+        0: 0,   // Strong downbeat scrape
+        0.5: 0.4, // Light upbeat
+        1: 0.6,   // Medium beat
+        1.5: 0.3, // Light
+        2: 0.7,   // Accent
+        2.5: 0.5, // Medium
+        3: 0.4,   // Light
+        3.5: 0.8  // Syncopated accent
         
-        // Beat 2
-        1: 0.6,     // Quarter note
-        1.125: 0.15, // 32nd note
-        1.25: 0.2,  // 16th note
-        1.375: 0.1, // 32nd note
-        1.5: 0.3,   // 8th note
-        1.625: 0.2, // 32nd note
-        1.75: 0.4,  // 16th note
-        1.875: 0.3, // 32nd note
-        
-        // Beat 3
-        2: 0.7,     // Accent
-        2.125: 0.2, // 32nd note
-        2.25: 0.3,  // 16th note
-        2.375: 0.25, // 32nd note
-        2.5: 0.5,   // 8th note
-        2.625: 0.3, // 32nd note
-        2.75: 0.4,  // 16th note
-        2.875: 0.35, // 32nd note
-        
-        // Beat 4
-        3: 0.4,     // Quarter note
-        3.125: 0.1, // 32nd note ghost
-        3.25: 0.2,  // 16th note
-        3.375: 0.15, // 32nd note
-        3.5: 0.8,   // Syncopated accent
-        3.625: 0.4, // 32nd note
-        3.75: 0.6,  // 16th note
-        3.875: 0.5  // 32nd note buildup
-    };
+      };
       
-    const roundedBeat = Math.round(beatPosition * 8) / 8;  // Changed from *2 to *8 for 32nd notes
-    const patternVel = fineCumbiaPattern[roundedBeat] ?? 0.6;  // Changed from cumbiaPattern to fineCumbiaPattern
-    return humanizeVelocity(patternVel);
-}
+     const roundedBeat = Math.round(beatPosition * 2) / 2;
+     const patternVel = cumbiaPattern[roundedBeat] ?? 0.6;  // Use ?? instead of || to allow 0  return humanizeVelocity(patternVel); 
+     return humanizeVelocity(patternVel);
+    
+    }
     
     function getBomboVelocity(beatPosition) {
       // Strong on 1 and 3, lighter on 2 and 4
@@ -111,112 +81,29 @@ function getGuiroVelocity(beatPosition, parte) {
       return humanizeVelocity(0.7 * rhythmicBoost);
     }
     
-   /* function getContratiempoVelocity(beatPosition) {
+    function getContratiempoVelocity(beatPosition) {
       // Emphasize off-beats
       const isOffbeat = (beatPosition + 0.5) % 1 === 0;
       const baseVel = isOffbeat ? 0.8 : 0.4;
       return humanizeVelocity(baseVel);
     }
-    */
-
-    function getContratiempoVelocity(beatPosition, parte) {
-    // Enhanced cumbia güiro pattern with 32nd note subdivisions
-    const fineCumbiaPattern = {
-        // Beat 1 with 32nd note subdivisions
-          // Beat 1
-        0: 0.7,       // Strong downbeat scrape (HIGH)
-        0.125: 0.1,   // 32nd note ghost (LOW)
-        0.25: 0.3,    // 16th note light scrape (LOW-MED)
-        0.375: 0.15,  // 32nd note ghost (LOW)
-        0.5: 0.4,     // 8th note upbeat (MEDIUM)
-        0.625: 0.2,   // 32nd note ghost (LOW)
-        0.75: 0.3,    // 16th note (LOW-MED)
-        0.875: 0.25,  // 32nd note (LOW)
-        
-        // Beat 2
-        1: 0.6,     // Quarter note
-        1.125: 0.15, // 32nd note
-        1.25: 0.2,  // 16th note
-        1.375: 0.1, // 32nd note
-        1.5: 0.3,   // 8th note
-        1.625: 0.2, // 32nd note
-        1.75: 0.4,  // 16th note
-        1.875: 0.3, // 32nd note
-        
-        // Beat 3
-        2: 0.7,     // Accent
-        2.125: 0.2, // 32nd note
-        2.25: 0.3,  // 16th note
-        2.375: 0.25, // 32nd note
-        2.5: 0.5,   // 8th note
-        2.625: 0.3, // 32nd note
-        2.75: 0.4,  // 16th note
-        2.875: 0.35, // 32nd note
-        
-        // Beat 4
-        3: 0.4,     // Quarter note
-        3.125: 0.1, // 32nd note ghost
-        3.25: 0.2,  // 16th note
-        3.375: 0.15, // 32nd note
-        3.5: 0.8,   // Syncopated accent
-        3.625: 0.4, // 32nd note
-        3.75: 0.6,  // 16th note
-        3.875: 0.5  // 32nd note buildup
-    };
-      
-    const roundedBeat = Math.round(beatPosition * 8) / 8;  // Changed from *2 to *8 for 32nd notes
-    const patternVel = fineCumbiaPattern[roundedBeat] ?? 0.6;  // Changed from cumbiaPattern to fineCumbiaPattern
-    return humanizeVelocity(patternVel);
-}
-
-function getBajoVelocity(beatPosition, noteIndex) {
-    // Enhanced tumbao pattern with 32nd note subdivisions
-    const tumbaPattern = {
-        // Beat 1
-        0: 0.9,      // Strong root note
-        0.125: 0.2,  // Ghost note (32nd)
-        0.25: 0.3,   // Light fill (16th)
-        0.375: 0.15, // Micro ghost (32nd)
-        0.5: 0.5,    // Light upbeat (8th)
-        0.625: 0.25, // Ghost (32nd)
-        0.75: 0.4,   // Fill note (16th)
-        0.875: 0.2,  // Leading ghost (32nd)
-        
-        // Beat 2
-        1: 0.6,      // Medium accent
-        1.125: 0.15, // Ghost (32nd)
-        1.25: 0.3,   // Light (16th)
-        1.375: 0.2,  // Ghost (32nd)
-        1.5: 0.4,    // Light (8th)
-        1.625: 0.3,  // Fill (32nd)
-        1.75: 0.35,  // Medium (16th)
-        1.875: 0.25, // Setup (32nd)
-        
-        // Beat 3
-        2: 0.7,      // Accent
-        2.125: 0.3,  // Ghost (32nd)
-        2.25: 0.4,   // Fill (16th)
-        2.375: 0.2,  // Ghost (32nd)
-        2.5: 0.8,    // Syncopation!
-        2.625: 0.4,  // Follow-through (32nd)
-        2.75: 0.5,   // Medium (16th)
-        2.875: 0.35, // Build (32nd)
-        
-        // Beat 4
-        3: 0.5,      // Light
-        3.125: 0.2,  // Ghost (32nd)
-        3.25: 0.4,   // Fill (16th)
-        3.375: 0.25, // Ghost (32nd)
-        3.5: 0.6,    // Leading to next measure (8th)
-        3.625: 0.3,  // Setup (32nd)
-        3.75: 0.4,   // Build (16th)
-        3.875: 0.45  // Final push (32nd)
-    };
     
-    const roundedBeat = Math.round(beatPosition * 8) / 8;  // 32nd note precision
-    const patternVel = tumbaPattern[roundedBeat] ?? 0.7;
-    return humanizeVelocity(patternVel);
-}
+    function getBajoVelocity(beatPosition, noteIndex) {
+      // Tumbao pattern emphasis
+      const tumbaPattern = {
+        0: 0.9,    // Strong root
+        0.5: 0.5,  // Light
+        1: 0.6,    // Medium
+        1.5: 0.4,  // Light
+        2: 0.7,    // Accent
+        2.5: 0.8,  // Syncopation
+        3: 0.5,    // Light
+        3.5: 0.6   // Leading to next measure
+      };
+      
+      const patternVel = tumbaPattern[beatPosition % 4] || 0.7;
+      return humanizeVelocity(patternVel);
+    }
     
     function getTecladoVelocity(beatPosition, parte) {
       if (parte === 'acompañamiento') {
