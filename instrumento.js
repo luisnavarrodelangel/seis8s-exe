@@ -1,6 +1,7 @@
 import * as a from "./armonia.js";
 import * as r from "./ritmo.js";
 import * as s from './sonidos.js';
+import * as p from "./punteo.js"
 
 
 ///////////// linear transformation para normalizar/mapear 0 a -60db y 1 a 0db ///////////// 
@@ -40,6 +41,18 @@ export function stopSequence() {
     delete canalDelBombo[id];  // Remove reference
   });
 
+   // Dispose of all samplers
+   Object.keys(jamblockSampler).forEach(id => {
+    jamblockSampler[id].dispose();
+    delete jamblockSampler[id];  // Remove reference
+  });
+
+  // Dispose of all channels
+  Object.keys(canalDelJamblock).forEach(id => {
+    canalDelJamblock[id].dispose();
+    delete canalDelJamblock[id];  // Remove reference
+  });
+
     // Dispose of all samplers
     Object.keys(guiroSampler).forEach(id => {
       guiroSampler[id].dispose();
@@ -53,16 +66,16 @@ export function stopSequence() {
     });
   
    // Dispose of all samplers
-  Object.keys(contrasSampler).forEach(id => {
-    contrasSampler[id].dispose();
-    delete contrasSampler[id];  // Remove reference
-  });
+    Object.keys(contrasSampler).forEach(id => {
+      contrasSampler[id].dispose();
+      delete contrasSampler[id];  // Remove reference
+    });
 
-  // Dispose of all channels
-  Object.keys(canalDelContratiempo).forEach(id => {
-    canalDelContratiempo[id].dispose();
-    delete canalDelContratiempo[id];  // Remove reference
-  });
+    // Dispose of all channels
+    Object.keys(canalDelContratiempo).forEach(id => {
+      canalDelContratiempo[id].dispose();
+      delete canalDelContratiempo[id];  // Remove reference
+    });
   
   
     // Dispose of all samplers
@@ -134,6 +147,19 @@ export function desconectarPistasBorradas(id) {
       canalDelBombo[id].disconnect();
       canalDelBombo[id].dispose();
       delete canalDelBombo[id];
+    }
+
+    if (jamblockSampler[id]) {
+      jamblockSampler[id].releaseAll();
+      jamblockSampler[id].disconnect();
+      jamblockSampler[id].dispose();
+      delete jamblockSampler[id];
+    }
+
+    if (canalDelJamblock[id]) {
+      canalDelJamblock[id].disconnect();
+      canalDelJamblock[id].dispose();
+      delete canalDelJamblock[id];
     }
   
     if (guiroSampler[id]) {
@@ -289,6 +315,42 @@ export function bomboSamplerF(indiceSonido, id, volumen, paneo) {
 }
 
 
+///////////// Sampler del jamblock ///////////// 
+
+
+let jamblockSampler = {};  // Initialize jamblockSampler as an object to store multiple samplers
+let canalDelJamblock = {}; // Initialize canalDelJamblock as an object to store multiple channels
+
+export function jamblockSamplerF(indiceSonido, id, volumen, paneo) {
+
+   // Initialize the sampler if it's not already created or if sound changed
+   if (!jamblockSampler[id] || jamblockSampler[id]._currentSound !== indiceSonido) {
+
+    jamblockSampler[id] = new Tone.Sampler({
+      urls: {C4: s.getAudioBuffer("jamblock", indiceSonido).get('jamblock0')}, // Use indiceSonido as index
+      release: 1
+    });
+    jamblockSampler[id]._currentSound = indiceSonido; // Store current sound for comparison
+    
+  }
+
+  // Initialize the channel if not created yet
+  if (!canalDelJamblock[id]) {
+    canalDelJamblock[id] = new Tone.Channel({
+      volume: normalizarVolumen(volumen), // Initial volume
+      pan: (paneo * 2) - 1,  // Initial pan
+    }).toDestination();
+  } else {
+    // If the channel already exists, update its parameters
+    canalDelJamblock[id].volume.value = normalizarVolumen(volumen);
+    canalDelJamblock[id].pan.value = (paneo * 2) - 1;
+  }
+
+  // Connect the sampler to its corresponding channel
+  jamblockSampler[id].connect(canalDelJamblock[id]);  // Connect the sampler to the channel
+}
+
+
 
 ///////////// Sampler de los contratiempos /////
 let contrasSampler = {};
@@ -429,7 +491,7 @@ export function bajoSamplerF(indiceSonido, id, volumen, paneo) {
 
   // let seq;
 
-export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSonido, cuantizar, notas, parte, octavaAbsoluta) {
+export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSonido, cuantizar, notas, parteTipo, parte, octavaAbsoluta) {
   
   // const id = instrumento + "_" + identificador; //bajo_default
 
@@ -476,14 +538,17 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
      Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
-        bajoSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        if (value.note !== null) {
+          bajoSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
     }, _parte).start(0);
        
        
       console.log('Sequence created for bajo', id, sequences[id]);
 
        sequences[id].loop = true; // Enable looping
-  
+       sequences[id].humanize = "128n"; // Add humanization
+
        let numeroDeCompases = a.numberOfMeasures(_parte);
        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
               
@@ -499,7 +564,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
     // let indiceSonido = s.sonidos.teclado[indiceSonido].nombre;  
     tecladoSamplerF(indiceSonido, id, volumen, paneo);
     
-     if (parte.length  == 0) {  // Logical operator corrected
+     if (parteTipo === null) {  // Logical operator corrected
         console.log("¡Comenzando secuencia del teclado!");
   
 // let secuenciaDeNotasYacordes = crearAcordeDesdeLista(['E4', 'C4 D5 E5   ']); 
@@ -526,15 +591,15 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
        
                     
-} else if (parte.length > 0) {
+} else if (parteTipo === 'acompanamiento' || parteTipo === 'acompañamiento') {
      console.log("¡Comenzando acompañamiento del teclado!")
     
     // const parteTeclado = [{ "time": "0:1:0", "note": ['C4', 'E4', 'G4'], "duration": "4n" }, { "time": "0:3:0", "note": ['G4', 'B4', 'D4'], "duration": "4n" }]
-//  // :: [{time, note, duration} , ... ] -> [{tonal chord}] -> [{time, note duration}, ...]
+   // :: [{time, note, duration} , ... ] -> [{tonal chord}] -> [{time, note duration}, ...]
 
     let armoniaT = a.armoniaEnNotasExplicitas(armonia);    
-    let eParte = { "time": "0:0:0", "note": 1, "duration": "4n", "octavaRelativa": 0 }
-    let acorde = Tonal.Chord.get('Cmaj')
+    // let eParte = { "time": "0:0:0", "note": 1, "duration": "4n", "octavaRelativa": 0 }
+    // let acorde = Tonal.Chord.get('Cmaj')
     
     // let parteTeclado_ =  a.asignarNotasSegunGradosDelAcordeTeclado(eParte, acorde, octavaAbsoluta);
     let parteTeclado_ =  a.acordesDelTeclado(parte, armoniaT, octavaAbsoluta);
@@ -544,19 +609,72 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
           
      Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
-        tecladoSampler[id].triggerAttackRelease(value.note, value.duration, time);  
+        if (value.note !== null) {
+          tecladoSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);  
+        }
          // console.log("acorde", value.note);
     }, parteTeclado_).start(0);
 
        console.log('Sequence created for teclado' + id.toString(), id, sequences[id]);
 
       sequences[id].loop = true; // Enable looping
+      sequences[id].humanize = "128n"; // Add humanization
   
        let numeroDeCompases = a.numberOfMeasures(parteTeclado_);
        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
      });
-  } 
+
+     
+  } else if (parteTipo === 'punteo') {
+      console.log("¡Comenzando melodía del teclado!")
+      let armoniaT = a.armoniaEnNotasExplicitas(armonia);    
+      let parteTeclado_ =  a.lineaMelodica(parte, armoniaT, octavaAbsoluta);
+      
+      console.log("Before adornar:", parteTeclado_);
+      console.log("Raw harmony:", armonia); // This should show [['Cmaj'], ['Dm']]
+    
+      // Enhanced melody ornamentation with jazz approach
+      const configuracionMelodia = {
+        densidadPasos: 0.7, // More passing notes
+        usarEscalaJazz: true,
+        tipoOrnamento: 'scalar', // Use chord scales
+        mantenerNotasObjetivo: true,
+        subdivisionMinima: '16n', // Minimum note duration for ornaments
+        espaciadoPasos: 1, 
+
+        // swing: 0.1, //coming from p.generarRitmoJazz
+        // variacionDuracion: true
+      };
+
+    
+
+      // Use the raw harmony array instead of armoniaT
+      parteTeclado_ = p.adornarMelodia(parteTeclado_, armonia, configuracionMelodia);
+      console.log("After adronar melodia", parteTeclado_);
+
+
+      Tone.loaded().then(() => {
+        sequences[id] = new Tone.Part((time, value) => {
+            // Different velocity for ornamental notes
+            const finalVelocity = value.ornament ? value.velocity * 0.8 : value.velocity;
+
+            if (value.note !== null) {
+            tecladoSampler[id].triggerAttackRelease(value.note, value.duration, time, finalVelocity);  
+            // console.log("Playing note:", value.note, "at", time, "ornament:", !!value.ornament);
+            }
+          }, parteTeclado_).start(0);
+ 
+     console.log('Enhanced sequence created for teclado' + id.toString(), id, sequences[id]);
+ 
+       sequences[id].loop = true; // Enable looping
+       sequences[id].humanize = "128n"; // Add humanization
+   
+        let numeroDeCompases = a.numberOfMeasures(parteTeclado_);
+        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+      });
+      // const parteTeclado = [{ "time": "0:1:0", "note": ['C4', 'E4', 'G4'], "duration": "4n" }, { "time": "0:3:0", "note": ['G4', 'B4', 'D4'], "duration": "4n" }] 
 }
+  }
   
   
   
@@ -592,19 +710,62 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
       Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
-        bomboSampler[id].triggerAttackRelease(value.note, value.duration, time);
+        if (value.note !== null) {
+          bomboSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
     }, parteDelBombo).start(0);
         
       console.log('Sequence created for bombo' + id.toString(), id, sequences[id]);
 
       sequences[id].loop = true; // Enable looping
-  
+      sequences[id].humanize = "128n"; // Add humanization  
        let numeroDeCompases = a.numberOfMeasures(parteDelBombo);
        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
      })
    }
    }
   
+  //////////////////////jamblock////////////////////
+
+
+  if (instrumento === "jamblock" || instrumento === "jam")  {   
+     
+     jamblockSamplerF(indiceSonido, id, volumen, paneo);
+     
+     if (parte.length == 0 ) {  
+        console.log("¡Comenzando secuencia del jamblock!");
+
+        // Create and start the sequence
+        
+      Tone.loaded().then(() => {
+      console.log("Sampler fully loaded!");
+        sequences[id] = new Tone.Sequence((time, note) => {
+          jamblockSampler[id].triggerAttackRelease(note, 0.1, time);
+        }, notas, '1m');   // '1m' represents one measure as the interval
+
+        sequences[id].start(0);
+
+      });
+
+  } else if (parte.length > 0) {
+     console.log("¡Comenzando ritmo del jamblock!")
+
+      let parteDelJamblock =  r.filtrarYaplanarParte(parte)
+
+      Tone.loaded().then(() => {
+       sequences[id] = new Tone.Part((time, value) => {
+        jamblockSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+    }, parteDelJamblock).start(0);
+        
+      console.log('Sequence created for jamblock' + id.toString(), id, sequences[id]);
+
+      sequences[id].loop = true; // Enable looping
+      sequences[id].humanize = "128n"; // Add humanization  
+      let numeroDeCompases = a.numberOfMeasures(parteDelJamblock);
+      sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+     })
+   }
+   }
   
   
   
@@ -645,7 +806,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
       console.log('Sequence created for contras' + id.toString(), id, sequences[id]);
 
       sequences[id].loop = true; // Enable looping
-  
+      sequences[id].humanize = "128n"; // Add humanization  
        let numeroDeCompases = a.numberOfMeasures(parteDelContratiempo);
        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
      });
@@ -680,17 +841,17 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
      console.log("¡Comenzando ritmo del conga!")
 
     
-    let parteDeLaConga =  r.filtrarYaplanarParteCongas(parte)
+    let parteDeLaConga =  r.filtrarYaplanarParte(parte)
      
       Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
-        congaSampler[id].triggerAttackRelease(value.note, value.duration, time);
+        congaSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
     }, parteDeLaConga).start(0);
         
       console.log('Sequence created for conga' + id.toString(), id, sequences[id]);
 
       sequences[id].loop = true; // Enable looping
-  
+      sequences[id].humanize = "128n"; // Add humanization  
        let numeroDeCompases = a.numberOfMeasures(parteDeLaConga);
        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
      });
@@ -736,6 +897,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
       console.log('Sequence created for guiro' + id.toString(), id, sequences[id]);
 
       sequences[id].loop = true; // Enable looping
+      sequences[id].humanize = "128n"; // Add humanization
   
        let numeroDeCompases = a.numberOfMeasures(parteDelguiro);
        sequences[id].loopEnd = numeroDeCompases + 1 + "m"

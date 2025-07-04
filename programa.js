@@ -65,8 +65,9 @@ export function programa(estadoGlobal, pistas) {
         pista.volumen,
         pista.paneo,
         pista.sonido,
-        '1m',
+        '1m', //cuantizacion
         pista.notas,
+        pista.parte.type,
         pista.parte.parteList,
         pista.octavaAbsoluta
       );

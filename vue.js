@@ -91,7 +91,17 @@ const app = Vue.createApp({
       delay: 100, // Adjust the delay as needed
       initXPlusSsign: 575.524,
       espacioPlusSignYtab: 0.736,
-      docs:[{name: "Documento 0", documentoActivo: true, textareaId: "textarea 0", xDocTab: 406.506, xCerrarDocIcono: 549.422, textEditor: ` tempo 100; \n armonia |Cmaj||Dm|; \n teclado (v 0.75, acompañamiento [ 𝄽  𝅘𝅥  𝄽  𝅘𝅥 | 𝄽  𝅘𝅥  𝄽  𝅘𝅥 ]);\n bajo (v 1, s 3, tumbao [ 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 | 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 ]); \n bombo ( v 0.90, ritmo [ 𝅘𝅥  𝄽 𝅘𝅥 𝅘𝅥 ]); \n guiro ( v 0.9, ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]);`,
+      docs:[{name: "Documento 0", documentoActivo: true, textareaId: "textarea 0", xDocTab: 406.506, xCerrarDocIcono: 549.422, textEditor: 
+`tempo 100
+armonia [Cmaj | Dm]
+teclado (v 0.75, p 0.25, id "mel") punteo [ 𝄽  𝅘𝅥  𝅘𝅥/5  𝅘𝅥/3 | 𝄽  𝅘𝅥  𝅘𝅥𝅮/5 𝅘𝅥𝅮/5  𝅘𝅥/3 ]
+teclado (v 0.75, p 0.25) acompañamiento [ 𝄽  𝅘𝅥  𝄽  𝅘𝅥 | 𝄽  𝅘𝅥  𝄽  𝅘𝅥 ]
+bajo (v 1, s 3) tumbao [ 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 | 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 ]
+bombo (v 0.90, p 0.75) ritmo [ 𝅘𝅥  𝄽 𝅘𝅥 𝅘𝅥 ]
+guiro (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
+congas (v 0.90, p 0.75) marcha [ 𝅘𝅥 /t 𝅘𝅥/m 𝅘𝅥/t 𝅘𝅥 ]
+jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
+`,
 }],
 //       expandir pantalla
       pantallaCompletaVerticalmente: false,
@@ -125,7 +135,7 @@ const app = Vue.createApp({
   },
 
   mounted() {
-     // let ejemploDeInicio = ` tempo 150; \n armonia |Cmaj||Dm|; \n teclado (v 0.75, acompañamiento | 𝄽  𝅘𝅥  𝄽  𝅘𝅥 || 𝄽  𝅘𝅥  𝄽  𝅘𝅥 |);\n bajo (v 1, s 3, tumbao | 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 || 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 |); \n bombo ( v 0.90, ritmo | 𝅘𝅥  𝄽 𝅘𝅥 𝅘𝅥 |); \n contras ( v 0.9, ritmo |𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮|);`
+     // let ejemploDeInicio = ` tempo 150; \n armonia |Cmaj||Dm|; \n teclado (v 0.75, acompañamiento | 𝄽  𝅘𝅥  𝄽  𝅘𝅥 || 𝄽  𝅘𝅥  𝄽  𝅘𝅥 |);\n bajo (v 1, s 3, tumbao | 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 || 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 |); \n bombo ( v 0.90, ritmo | 𝅘𝅥  𝄽 𝅘𝅥 𝅘𝅥 |); \n contras ( v 0.9, ritmo |𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮|); `
     // this.agregaUnDocADocs();
     // this.$nextTick(() => {
     // this.docs[this.indiceDelDocumentoActivo].textEditor = ejemploDeInicio;

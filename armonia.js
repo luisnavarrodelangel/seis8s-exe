@@ -3,10 +3,23 @@
 // [String] -> [String], e.g.,  => ["C", "E", "E", "G"]
 function obtenerNotasDelAcorde(acorde) {
   // Check if 'acorde' is an array and has elements - sometimes it is passed a null value I think
-  if (Array.isArray(acorde) && acorde.length > 0) {
-    const listaDeNotas = acorde.map((elemento) => Tonal.Chord.get(elemento)); 
-    return listaDeNotas;
-  }
+  if (!Array.isArray(acorde) || acorde.length === 0) return [];
+
+  return acorde.map(nombreAcorde => {
+    const chord = Tonal.Chord.get(nombreAcorde);
+   const grados = {}
+  
+    // Map intervals to degrees (e.g., "1P" -> 1, "3M" -> 3, "9M" -> 9, etc.)
+    chord.intervals.forEach((interval, i) => {
+      const grado = Tonal.Interval.num(interval); // ← use this!
+      grados[grado] = chord.notes[i];
+    });
+
+    return {
+      ...chord, 
+      grados
+    };
+  });
 }
 
 
@@ -17,94 +30,184 @@ export function armoniaEnNotasExplicitas(armonia){
 }
 
 
-/////////////////// Línea del bajo //////////////////////
 
-// :: {time, note dureation} -> {tonal chord} -> {time, note dureation}
-function asignarNotasDelBajoSegunGradosDelAcorde(elementoParte, chordProperties, octavaAbsoluta) {
-  const grados = {
-    null: null,
-    1: chordProperties.tonic,
-    3: chordProperties.notes[1] || null,
-    5: chordProperties.notes[2] || null,
-    7: chordProperties.notes[3] || null
-  };
-  
+
+///////////////// Melodia //////////////////////
+
+// :: [[{time, note, duration} , ... ], ... ] -> [[{tonal chord}], ... ] -> [{time, note, duration} , ... ]
+export function lineaMelodica(parte, armonia, octavaAbsoluta) {
+  const result = parte.map((p, index) => {
+    const harmonyForPart = armonia[index % armonia.length];  // Get the corresponding harmony
+    return listaDeGradosDeAcordesALineaMelodica(p, harmonyForPart, octavaAbsoluta);
+  }).flat();
+
+  console.log(result);
+  return result;
+}
+
+
+// :: {time, note duration} -> {tonal chord} -> {time, note duration}
+function asignarNotasDeLineaMelodicaSegunGradosDelAcorde(elementoParte, chordProperties, octavaAbsoluta) {
+
+  if (elementoParte.note === null) return elementoParte; // Preserve rests without modifying
+
   const grado = elementoParte.note;
   const octava = octavaAbsoluta + elementoParte.octavaRelativa;
+  const notaGrado = chordProperties.grados[grado];
 
-  if (grados[grado] !== null) {
-    elementoParte.note = grados[grado] + String(octava);  
-  } 
+  if (notaGrado) {
+    elementoParte.note = notaGrado + String(octava);
+  } else {
+    elementoParte.note = null; // Degree not present in chord
+  }
+
   return elementoParte;
 }
 
+
 // :: [{time, note, duration} , ... ] -> [{tonal chord}] -> [{time, note duration}, ...]
-function listaDeGradosDeAcordesAlistaDeNotasDelBajo(elementosParteList, chordPropertiesList, octavaAbsoluta) {
+function listaDeGradosDeAcordesALineaMelodica(elementosParteList, chordPropertiesList, octavaAbsoluta) {
   return elementosParteList.map(elemento => {
-    const chordProperties = chordPropertiesList[0];
-    return asignarNotasDelBajoSegunGradosDelAcorde({ ...elemento }, chordProperties, octavaAbsoluta);
+    const chordProperties = chordPropertiesList[0]; // Assuming one chord per segment
+    return asignarNotasDeLineaMelodicaSegunGradosDelAcorde({ ...elemento }, chordProperties, octavaAbsoluta);
   });
-} 
+}
 
 
-// :: [[{time, note, duration} , ... ], ... ] -> [[{tonal chord}], ... ] -> [{time, note, duration} , ... ]
+
+
+
+
+/////////////////// Línea del bajo //////////////////////
+
+// :: {time, note dureation} -> {tonal chord} -> {time, note dureation}
+// function asignarNotasDelBajoSegunGradosDelAcorde(elementoParte, chordProperties, octavaAbsoluta) {
+//   const grados = {
+//     null: null,
+//     1: chordProperties.tonic,
+//     3: chordProperties.notes[1] || null,
+//     5: chordProperties.notes[2] || null,
+//     7: chordProperties.notes[3] || null
+//   };
+  
+//   const grado = elementoParte.note;
+//   const octava = octavaAbsoluta + elementoParte.octavaRelativa;
+
+//   if (grados[grado] !== null) {
+//     elementoParte.note = grados[grado] + String(octava);  
+//   } 
+//   return elementoParte;
+// }
+
+// // :: [{time, note, duration} , ... ] -> [{tonal chord}] -> [{time, note duration}, ...]
+// function listaDeGradosDeAcordesAlistaDeNotasDelBajo(elementosParteList, chordPropertiesList, octavaAbsoluta) {
+//   return elementosParteList.map(elemento => {
+//     const chordProperties = chordPropertiesList[0];
+//     return asignarNotasDelBajoSegunGradosDelAcorde({ ...elemento }, chordProperties, octavaAbsoluta);
+//   });
+// } 
+
+
+// // :: [[{time, note, duration} , ... ], ... ] -> [[{tonal chord}], ... ] -> [{time, note, duration} , ... ]
+// export function lineaDelBajo(parte, armonia, octavaAbsoluta) {
+//   const result = parte.map((p, index) => {
+//     const harmonyForPart = armonia[index % armonia.length];  // Get the corresponding harmony
+//     return listaDeGradosDeAcordesAlistaDeNotasDelBajo(p, harmonyForPart, octavaAbsoluta);
+//   }).flat().filter(elemento => elemento.note !== null);
+//   console.log(result);
+//   return result
+// }
+
+
+function asignarNotasDelBajoSegunGradosDelAcorde(elementoParte, chordProperties, octavaAbsoluta) {
+  if (elementoParte.note === null) return elementoParte; // Preserve rests without modifying
+
+  const grado = elementoParte.note;
+  const octava = octavaAbsoluta + elementoParte.octavaRelativa;
+  const notaGrado = chordProperties.grados[grado];
+
+  if (notaGrado) {
+    elementoParte.note = notaGrado + String(octava);
+  } else {
+    elementoParte.note = null; // Degree not present in chord
+  }
+
+  return elementoParte;
+}
+
+function listaDeGradosDeAcordesAlistaDeNotasDelBajo(elementosParteList, chordProperties, octavaAbsoluta) {
+  return elementosParteList.map(elemento => {
+    return asignarNotasDelBajoSegunGradosDelAcorde({ ...elemento }, chordProperties[0], octavaAbsoluta);
+  });
+}
+
+
 export function lineaDelBajo(parte, armonia, octavaAbsoluta) {
   const result = parte.map((p, index) => {
-    const harmonyForPart = armonia[index % armonia.length];  // Get the corresponding harmony
+    const harmonyForPart = armonia[index % armonia.length];
     return listaDeGradosDeAcordesAlistaDeNotasDelBajo(p, harmonyForPart, octavaAbsoluta);
-  }).flat().filter(elemento => elemento.note !== null);
+  }).flat();
+
   console.log(result);
-  return result
+  return result;
 }
 
 
 /////////////////// Acordes del teclado //////////////////////
 
 // const parteTeclado = [{ "time": "0:2:0", "note": ['C4', 'E4', 'G4'], "duration": "4n" }, { "time": "0:4:0", "note": ['C4', 'E4', 'G4'], "duration": "4n" }]
- 
-// :: {time, note dureation} -> {tonal chord} -> [{time, note: [lista de notas del acorde] dureation}, ...]
-// function asignarNotasSegunGradosDelAcordeTeclado(elementoParte, chordProperties, octavaAbsoluta) {
+ // :: {time, note dureation} -> {tonal chord} -> [{time, note: [lista de notas del acorde] dureation}, ...]
+// function asignarNotasDelTecladoSegunGradosDelAcorde(elementoParte, chordProperties, octavaAbsoluta) {
+//   const grados = {
+//     null: null,
+//     1: chordProperties.tonic,
+//     3: chordProperties.notes[1] || null,
+//     5: chordProperties.notes[2] || null,
+//     7: chordProperties.notes[3] || null
+//   };
+  
+//   const grado = elementoParte.note;
+//   const octava = octavaAbsoluta + elementoParte.octavaRelativa;
+//   let chordNotes = [];
+
+//   if (grados[grado] !== null){
+//     if (grados[7] === null) {
+//     chordNotes.push(grados[1] + String(octava), grados[3] + String(octava), grados[5] + String(octava));
+//   } else {
+//     chordNotes.push(grados[1] + String(octava), grados[3] + String(octava), grados[5] + String(octava), grados[7] + String(octava));
+//   }
+// }
+
+//   elementoParte.note = chordNotes;
+//   // console.log("elementoParte", elementoParte);
+//   return elementoParte;
+// }
 
 function asignarNotasDelTecladoSegunGradosDelAcorde(elementoParte, chordProperties, octavaAbsoluta) {
-  const grados = {
-    null: null,
-    1: chordProperties.tonic,
-    3: chordProperties.notes[1] || null,
-    5: chordProperties.notes[2] || null,
-    7: chordProperties.notes[3] || null
-  };
+  if (elementoParte.note === null) return elementoParte; // Preserve rests
   
-  const grado = elementoParte.note;
-  const octava = octavaAbsoluta + elementoParte.octavaRelativa;
-  let chordNotes = [];
+    const octava = octavaAbsoluta + elementoParte.octavaRelativa;
+    const grados = chordProperties.grados || {};
 
-  if (grados[grado] !== null){
-    if (grados[7] === null) {
-    chordNotes.push(grados[1] + String(octava), grados[3] + String(octava), grados[5] + String(octava));
-  } else {
-    chordNotes.push(grados[1] + String(octava), grados[3] + String(octava), grados[5] + String(octava), grados[7] + String(octava));
-  }
-}
+    // Get all the available degrees (sorted numerically for musical order)
+  const gradosOrdenados = Object.keys(grados)
+  .map(Number)
+  .sort((a, b) => a - b);
 
-  elementoParte.note = chordNotes;
-  // console.log("elementoParte", elementoParte);
+  // TODO:
+  // Limit voicings to 4 notes? Just .slice(0, 4)
+  // Add drop-2 logic? Shuffle degrees and shift octaves
+  // Avoid muddy low-register 11ths/13ths? Filter based on range
+  // Add inversions? Reorder gradosOrdenados
+
+  const chordNotes = gradosOrdenados.map(grado => grados[grado] + String(octava));
+  elementoParte.note = chordNotes.length > 0 ? chordNotes : null;
+
+
   return elementoParte;
 }
 
- // Add other chord notes based on the initial degree
-    // if (grado === 1) {
-    //   chordNotes.push(grados[3] + String(octava), grados[5] + String(octava));
-    // } else if (grado === 3) {
-    //   chordNotes.push(grados[1] + String(octava), grados[5] + String(octava));
-    // } else if (grado === 5) {
-    //   chordNotes.push(grados[1] + String(octava), grados[3] + String(octava));
-    // } else if (grado === 7) {
-    //   chordNotes.push(grados[1] + String(octava), grados[3] + String(octava), grados[5] + String(octava));
-    // }
-
-
 // :: [{time, note, duration} , ... ] -> [{tonal chord}] -> [{time, note duration}, ...]
-// function listaDeGradosAlistaDeNotasTeclado(elementosParteList, chordPropertiesList, octavaAbsoluta) {
 function listaDeGradosDeAcordesAlistaDeNotasDelTeclado(elementosParteList, chordPropertiesList, octavaAbsoluta) {
   return elementosParteList.map(elemento => {
     const chordProperties = chordPropertiesList[0];
@@ -116,14 +219,24 @@ function listaDeGradosDeAcordesAlistaDeNotasDelTeclado(elementosParteList, chord
 // :: [[{time, note, duration} , ... ], ... ] -> [[{tonal chord}], ... ] -> [{time, note, duration} , ... ]
 export function acordesDelTeclado(parte, armonia, octavaAbsoluta) {
   const result = parte.map((p, index) => {
-    const harmonyForPart = armonia[index % armonia.length];  // Get the corresponding harmony
-    // console.log("listaDeGrados", listaDeGradosDeAcordesAlistaDeNotasDelTeclado(p, harmonyForPart, octavaAbsoluta));
-
+    const harmonyForPart = armonia[index % armonia.length];
     return listaDeGradosDeAcordesAlistaDeNotasDelTeclado(p, harmonyForPart, octavaAbsoluta);
-  }).flat().filter(elemento => elemento.note !== null);
-      // console.log("result", result);
-  return result
+  }).flat();
+
+  return result;
 }
+
+// export function acordesDelTeclado(parte, armonia, octavaAbsoluta) {
+//   const result = parte.map((p, index) => {
+//     const harmonyForPart = armonia[index % armonia.length];  // Get the corresponding harmony
+//     // console.log("listaDeGrados", listaDeGradosDeAcordesAlistaDeNotasDelTeclado(p, harmonyForPart, octavaAbsoluta));
+
+//     return listaDeGradosDeAcordesAlistaDeNotasDelTeclado(p, harmonyForPart, octavaAbsoluta);
+//   }).flat().filter(elemento => elemento.note !== null);
+//       // console.log("result", result);
+//   return result
+// }
+
 
 
 
@@ -138,46 +251,5 @@ export function acordesDelTeclado(parte, armonia, octavaAbsoluta) {
    return parseInt(timeParts[0], 10);    // Step 4: Get the first element
   }
 
-
-/////////////////// Crear acorde desde lista //////////////////////
-
-
-export function crearAcordeDesdeLista(input) {
-  const list1 = [];
-  const list2 = [];
-  const list3 = [];
-  const list4 = [];
-  const list5 = [];
-  const listaFinal = [];
-
-  input.forEach((item) => {
-    let elements = []; // Initialize elements as an empty array to avoid any carry-over.
-
-    if (Array.isArray(item)) {
-      const nestedResult = crearAcordeDesdeLista(item);
-      list1.push(nestedResult[0]);
-      list2.push(nestedResult[1]);
-      list3.push(nestedResult[2]);
-      list4.push(nestedResult[3]);
-      list5.push(nestedResult[4]);
-    } else if (item === null) {
-      elements = [null];
-    } else {
-      elements = item.trim().split(' ');
-    }
-
-    // Only push to the lists if `elements` exist
-    if (elements.length > 0) {
-      list1.push(elements[0] || null);
-      list2.push(elements[1] || null);
-      list3.push(elements[2] || null);
-      list4.push(elements[3] || null);
-      list5.push(elements[4] || null);
-    }
-  });
-
-  listaFinal.push(list1, list2, list3, list4, list5);
-  return listaFinal;
-}
 
 

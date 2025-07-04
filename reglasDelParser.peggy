@@ -1,25 +1,32 @@
 {
        
-    function getInstrumentVelocity(instrumentName, noteIndex, beatPosition, parte) {
+function getInstrumentVelocity(instrumentName, noteIndex, beatPosition, parte, note = null) {
       const baseVelocities = {
+        'jam': 0.6, 
+        'jamblock': 0.6, 
         'guiro': 0.7,
         'bombo': 0.8,
         'congas': 0.75,
         'contratiempo': 0.6,
+        'contratiempos': 0.6,
+        'contras': 0.6,       
         'bajo': 0.8,
         'teclado': 0.7
       };
       
-      let baseVel = baseVelocities[instrumentName] || 'undefined';
+      let baseVel = baseVelocities[instrumentName] || 0.7;
       
       // Instrument-specific velocity patterns
       switch(instrumentName) {
+        case 'jam':
+        case 'jamblock':
+        return getJamblockVelocity(beatPosition, parte);
         case 'guiro':
           return getGuiroVelocity(beatPosition, parte);
         case 'bombo':
           return getBomboVelocity(beatPosition);
         case 'congas':
-          return getCongasVelocity(beatPosition, parte);
+          return getCongasVelocity(note);
         case 'contratiempo':
         case 'contratiempos':
         case 'contras':
@@ -33,6 +40,56 @@
       }
     }
     
+function getJamblockVelocity (beatPosition, parte) {
+ const fineCumbiaPattern = {
+        // Beat 1 with 32nd note subdivisions
+          // Beat 1
+        0: 0.7,       // Strong downbeat scrape (HIGH)
+        0.125: 0.1,   // 32nd note ghost (LOW)
+        0.25: 0.3,    // 16th note light scrape (LOW-MED)
+        0.375: 0.15,  // 32nd note ghost (LOW)
+        0.5: 0.4,     // 8th note upbeat (MEDIUM)
+        0.625: 0.2,   // 32nd note ghost (LOW)
+        0.75: 0.3,    // 16th note (LOW-MED)
+        0.875: 0.25,  // 32nd note (LOW)
+        
+        // Beat 2
+        1: 0.6,     // Quarter note
+        1.125: 0.15, // 32nd note
+        1.25: 0.2,  // 16th note
+        1.375: 0.1, // 32nd note
+        1.5: 0.3,   // 8th note
+        1.625: 0.2, // 32nd note
+        1.75: 0.4,  // 16th note
+        1.875: 0.3, // 32nd note
+        
+        // Beat 3
+        2: 0.7,     // Accent
+        2.125: 0.2, // 32nd note
+        2.25: 0.3,  // 16th note
+        2.375: 0.25, // 32nd note
+        2.5: 0.5,   // 8th note
+        2.625: 0.3, // 32nd note
+        2.75: 0.4,  // 16th note
+        2.875: 0.35, // 32nd note
+        
+        // Beat 4
+        3: 0.4,     // Quarter note
+        3.125: 0.1, // 32nd note ghost
+        3.25: 0.2,  // 16th note
+        3.375: 0.15, // 32nd note
+        3.5: 0.8,   // Syncopated accent
+        3.625: 0.4, // 32nd note
+        3.75: 0.6,  // 16th note
+        3.875: 0.5  // 32nd note buildup
+    };
+      
+    const roundedBeat = Math.round(beatPosition * 8) / 8;  // Changed from *2 to *8 for 32nd notes
+    const patternVel = fineCumbiaPattern[roundedBeat] ?? 0.6;  // Changed from cumbiaPattern to fineCumbiaPattern
+    return humanizeVelocity(patternVel);
+}
+
+
 function getGuiroVelocity(beatPosition, parte) {
     // Enhanced cumbia güiro pattern with 32nd note subdivisions
     const fineCumbiaPattern = {
@@ -83,34 +140,88 @@ function getGuiroVelocity(beatPosition, parte) {
     return humanizeVelocity(patternVel);
 }
     
-    function getBomboVelocity(beatPosition) {
-      // Strong on 1 and 3, lighter on 2 and 4
-      const bomboPattern = {
-        0: 0.9,   // Strong downbeat
-        1: 0.6,   // Medium
-        2: 0.8,   // Strong backbeat
-        3: 0.5    // Light
-      };
-      
-      const patternVel = bomboPattern[Math.floor(beatPosition) % 4] || 0.7;
-      return humanizeVelocity(patternVel);
-    }
+   function getBomboVelocity(beatPosition) {
+    // Enhanced bombo pattern with 32nd note subdivisions
+    const bomboPattern = {
+        // Beat 1
+        0: 0.9,      // Strong downbeat
+        0.125: 0.1,  // Ghost kick (32nd)
+        0.25: 0.2,   // Light ghost (16th)
+        0.375: 0.15, // Micro ghost (32nd)
+        0.5: 0.3,    // Light fill (8th)
+        0.625: 0.1,  // Ghost (32nd)
+        0.75: 0.25,  // Fill (16th)
+        0.875: 0.2,  // Setup ghost (32nd)
+        
+        // Beat 2
+        1: 0.6,      // Medium kick
+        1.125: 0.15, // Ghost (32nd)
+        1.25: 0.2,   // Light (16th)
+        1.375: 0.1,  // Ghost (32nd)
+        1.5: 0.4,    // Medium fill (8th)
+        1.625: 0.2,  // Ghost (32nd)
+        1.75: 0.3,   // Fill (16th)
+        1.875: 0.25, // Build (32nd)
+        
+        // Beat 3
+        2: 0.8,      // Strong backbeat
+        2.125: 0.2,  // Ghost (32nd)
+        2.25: 0.3,   // Fill (16th)
+        2.375: 0.15, // Ghost (32nd)
+        2.5: 0.4,    // Medium (8th)
+        2.625: 0.25, // Ghost (32nd)
+        2.75: 0.35,  // Fill (16th)
+        2.875: 0.3,  // Setup (32nd)
+        
+        // Beat 4
+        3: 0.5,      // Light kick
+        3.125: 0.1,  // Ghost (32nd)
+        3.25: 0.2,   // Light fill (16th)
+        3.375: 0.15, // Ghost (32nd)
+        3.5: 0.3,    // Light (8th)
+        3.625: 0.2,  // Ghost (32nd)
+        3.75: 0.4,   // Build fill (16th)
+        3.875: 0.35  // Leading to next bar (32nd)
+    };
     
-    function getCongasVelocity(beatPosition, parte) {
+    const roundedBeat = Math.round(beatPosition * 8) / 8;  // 32nd note precision
+    const patternVel = bomboPattern[roundedBeat] ?? 0.7;
+    return humanizeVelocity(patternVel);
+}
+    
+ /*   function getCongasVelocity(beatPosition, parte) {
       // Different velocities for different conga sounds
       const congaVelocities = {
-        'C4': 0.8,  // 'a' - abierto (open)
-        'D4': 0.6,  // 's' - slap
-        'E4': 0.7,  // 'm' - mano (hand)
-        'F4': 0.9,  // 't' - tono (tone)
-        'G4': 0.5   // 'p' - palm
-      };
+    'C4': 0.8,  // 'a' - abierto (open) - Correct, this is loud
+    'D4': 0.7,  // 's' - slap - Could even be 0.8, slaps are sharp and loud
+    'E4': 0.6,  // 'm' - muteado (muted) - Much quieter!
+    'F4': 0.2,  // 't' - talon (heel) - Subtle, low sound
+    'G4': 0.1   // 'p' - punta (toe/finger) - Very quiet touch
+};
       
       // Add rhythmic emphasis
       const rhythmicBoost = beatPosition % 1 === 0 ? 1.1 : 0.9;
       return humanizeVelocity(0.7 * rhythmicBoost);
     }
+   */
+ 
+   function getCongasVelocity(note) {
+    // Different velocities for different conga sounds
+    const congaVelocities = {
+        'C4': 0.8,  // 'a' - abierto (open) - Correct, this is loud
+        'D4': 0.7,  // 's' - slap - Could even be 0.8, slaps are sharp and loud
+        'E4': 0.6,  // 'm' - muteado (muted) - Much quieter!
+        'F4': 0.2,  // 't' - talon (heel) - Subtle, low sound
+        'G4': 0.1   // 'p' - punta (toe/finger) - Very quiet touch
+    };
     
+    const baseVelocity = congaVelocities[note] || 0.5;
+    
+    // Add randomization (±10% variation)
+    const randomFactor = 0.9 + (Math.random() * 0.2); // Range: 0.9 to 1.1
+    
+    return humanizeVelocity(baseVelocity * randomFactor);
+} 
    /* function getContratiempoVelocity(beatPosition) {
       // Emphasize off-beats
       const isOffbeat = (beatPosition + 0.5) % 1 === 0;
@@ -218,25 +329,58 @@ function getBajoVelocity(beatPosition, noteIndex) {
     return humanizeVelocity(patternVel);
 }
     
-    function getTecladoVelocity(beatPosition, parte) {
-      if (parte === 'acompañamiento') {
-        // Chord comping pattern
+   function getTecladoVelocity(beatPosition, parte) {
+    if (parte === 'acompañamiento') {
+        // Enhanced chord comping pattern with 32nd note subdivisions
         const compingPattern = {
-          0: 0.6,    // Light downbeat
-          0.5: 0.8,  // Strong upbeat
-          1: 0.5,    // Light
-          1.5: 0.7,  // Medium upbeat
-          2: 0.6,    // Light
-          2.5: 0.9,  // Strong syncopation
-          3: 0.4,    // Very light
-          3.5: 0.7   // Setup for next measure
+            // Beat 1
+            0: 0.6,      // Light downbeat chord
+            0.125: 0.2,  // Ghost chord (32nd)
+            0.25: 0.3,   // Light stab (16th)
+            0.375: 0.15, // Micro ghost (32nd)
+            0.5: 0.8,    // Strong upbeat chord
+            0.625: 0.4,  // Follow chord (32nd)
+            0.75: 0.3,   // Light (16th)
+            0.875: 0.25, // Setup (32nd)
+            
+            // Beat 2
+            1: 0.5,      // Light chord
+            1.125: 0.2,  // Ghost (32nd)
+            1.25: 0.35,  // Medium stab (16th)
+            1.375: 0.15, // Ghost (32nd)
+            1.5: 0.7,    // Medium upbeat
+            1.625: 0.3,  // Light follow (32nd)
+            1.75: 0.4,   // Stab (16th)
+            1.875: 0.3,  // Build (32nd)
+            
+            // Beat 3
+            2: 0.6,      // Light chord
+            2.125: 0.25, // Ghost (32nd)
+            2.25: 0.4,   // Medium stab (16th)
+            2.375: 0.2,  // Ghost (32nd)
+            2.5: 0.9,    // Strong syncopation!
+            2.625: 0.5,  // Strong follow (32nd)
+            2.75: 0.4,   // Medium (16th)
+            2.875: 0.35, // Setup (32nd)
+            
+            // Beat 4
+            3: 0.4,      // Very light chord
+            3.125: 0.15, // Ghost (32nd)
+            3.25: 0.3,   // Light stab (16th)
+            3.375: 0.2,  // Ghost (32nd)
+            3.5: 0.7,    // Setup for next measure
+            3.625: 0.4,  // Build chord (32nd)
+            3.75: 0.5,   // Medium (16th)
+            3.875: 0.45  // Final setup (32nd)
         };
-        const patternVel = compingPattern[beatPosition % 4] || 0.6;
+        
+        const roundedBeat = Math.round(beatPosition * 8) / 8;  // 32nd note precision
+        const patternVel = compingPattern[roundedBeat] ?? 0.6;
         return humanizeVelocity(patternVel);
-      }
-      
-      return humanizeVelocity(0.7);
     }
+    
+    return humanizeVelocity(0.7);
+}
     
     function humanizeVelocity(baseVelocity = 0.7) {
       // Add slight randomness for human feel
@@ -291,12 +435,22 @@ function getBajoVelocity(beatPosition, noteIndex) {
         type: null,
         parteList:[]
         }
-    }
-    
-    
-    function normalizarVolumenDeInstrumento(v){
+    }; 
+
+      function normalizarVolumenDeInstrumento(v){
       return v * datosDelPrograma.estadoGlobal.volumen;
     }
+
+  const punteoDefaults = {
+    densidadPasos: 0.7,
+    usarEscalaJazz: true,
+    tipoOrnamento: 'chromatic',
+    mantenerNotasObjetivo: true,
+    duracionPasos: '8n',
+    subdivisionMinima: '4n',
+    espaciadoPasos: 1
+  };
+      
     
     function completeMusicalObject(inputObject) {
       // Merge inputObject with defaultMusicalObject
@@ -315,7 +469,12 @@ function getBajoVelocity(beatPosition, noteIndex) {
         completedObject.parte.type = null,
         completedObject.parte.parteList = [];
       }
-      
+
+      // Add punteo-specific defaults if the type is 'punteo'
+  /*if (completedObject.parte && completedObject.parte.type === 'punteo') {
+    completedObject = { ...completedObject, ...punteoDefaults };
+  }
+    */  
        // Execute the octava method
       function octavaAbsolutaf(instrumento){
         if (instrumento === "bajo") {
@@ -428,7 +587,13 @@ function getBajoVelocity(beatPosition, noteIndex) {
 function procesarCompasConVelocidades(compas, instrumentName, parteType) {
   return compas.map((elemento, index) => {
     const beatPosition = getBeatPosition(elemento.time);
-    const dynamicVelocity = getInstrumentVelocity(instrumentName, index, beatPosition, parteType);
+    const dynamicVelocity = getInstrumentVelocity(
+      instrumentName,
+      index,
+      beatPosition,
+      parteType, 
+      elemento.note
+      );
     
     return {
       ...elemento,
@@ -466,21 +631,21 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
     //start = _ (pista / estadoGlobal)* {return datosDelPrograma }
     start = (_ LineComment / _ MultiLineComment / _ pista / _ estadoGlobal)* _ EndOfInput {return datosDelPrograma }
     estadoGlobal
-      = _ k:("armonia" / "acordes") _ v:listaDeAcordesGlobales _ ";" _ {
+      = _ k:("armonia" / "acordes") _ v:listaDeAcordesGlobalesOlistaDeAcordeGlobal _  {
               if (v.length == 0) {
                return error(k + ' requiere uno o más compases con acordes')
               } else return datosDelPrograma.estadoGlobal.armonia = v
             }
-      / _ k:("tempo" / "t") _ v:entero _ ";" _ {return datosDelPrograma.estadoGlobal.tempo = v}
-      / _ k:("compas" / "c") _ v:string _ ";" _ {return datosDelPrograma.estadoGlobal.compas = v}
-      / _ k:("volumen" / "v") _ v:decimal _ ";" _ {
+      / _ k:("tempo" / "t") _ v:entero _  {return datosDelPrograma.estadoGlobal.tempo = v}
+      / _ k:("compas" / "c") _ v:string _  {return datosDelPrograma.estadoGlobal.compas = v}
+      / _ k:("volumen" / "v") _ v:decimal _  {
         if (v >= 0 && v <= 1) {
           return datosDelPrograma.estadoGlobal.volumen = v
       } else {
         error("volumen requiere un número entre 0 y 1");
       }
     }
-      / _ k:("paneo" / "p") _ v:decimal _ ";" _ {
+      / _ k:("paneo" / "p") _ v:decimal _  {
        if (v >= 0 && v <= 1) {
           return datosDelPrograma.estadoGlobal.paneo = v
       } else {
@@ -490,7 +655,7 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
       
          
     pista 
-      = _ i:instrumentIdentifier  _ p:listaDePropiedades? _ ";" _ {
+      = _ i:instrumentIdentifier  _ p:listaDePropiedadesConOpciones? _  {
        
         // Prepare the musical object by merging properties (if any)
         let pista = Object.assign({}, i);
@@ -505,6 +670,17 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
         }
          
          pista = completeMusicalObject(pista);
+
+         // Fix note values based on instrument context
+        if (pista.name === 'congas' && pista.parte && pista.parte.parteList) {
+          pista.parte.parteList.forEach(compas => {
+            compas.forEach(elemento => {
+              if (elemento.note === 1) {
+                elemento.note = 'C4'; // Default conga hit
+              }
+            });
+          });
+        }
     
         if (pista.parte.type === "acompañamiento" || pista.parte.type === "acompañamiento"){
           if (pista.name != "teclado") {
@@ -519,7 +695,7 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
          }  
        
        if (pista.parte.type === "ritmo"){
-             if (pista.name != "bombo" && pista.name != "contratiempo" && pista.name != "contratiempos" && pista.name != "contras" && pista.name != "guiro") {
+             if (pista.name != "bombo" && pista.name != "contratiempo" && pista.name != "contratiempos" && pista.name != "contras" && pista.name != "guiro" && pista.name != "jam" && pista.name != "jamblock") {
                  error(` ${pista.name} no usa ${pista.parte.type}`);     
              }    
          }
@@ -557,10 +733,24 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
       / i:"guiro" {return createProperty("name", i)}
       / i:("contras" / "contratiempos" / "contratiempo") {return createProperty("name", i)}
       / i:"congas" {return createProperty("name", i)}
+      / i: ( "jamblock" / "jam") {return createProperty ("name", i)}
       
-    
+
+    listaDePropiedadesConOpciones
+     = _ p:listaDePropiedades? _ pc:propiedadCompases? _ {      
+      if (p && pc) {
+      return [...p, pc];
+     } else if (p) {
+      return p
+     } else if (pc) {
+      return [pc]      
+     } else {
+      return []
+      }
+     }
+
     listaDePropiedades
-      = "(" _ p:(propiedad|.., _ "," _|) _ ")" {return p}
+      = "(" _ p:(propiedad|.., _ "," _|) _ ")" _ { return p }
       
     propiedad 
       = _ k:("sonido" / "s") _ v:entero _ {return createProperty("sonido", v)}
@@ -580,19 +770,50 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
       }
       }
       / _ k:("octava" / "o") _ v:entero _ {return createProperty("octavaAbsoluta", v)}
-      / _ k:("notas" / "n" / "punteo") _ v:(notaSola / listaDeNotas / notaMidiSola / listaDeNotasMidi) _ {return createProperty("notas", v)}
-      / _ k:("marcha" / "tumbao" / "acompañamiento" / "acompanamiento" / "ritmo") _ v:listaDeCompases _ {
+//      / _ k:("notas" / "n" / "punteo") _ v:(notaSola / listaDeNotas / notaMidiSola / listaDeNotasMidi / compasOListaDeCompases) _ {return createProperty("notas", v)}
+     
+     propiedadCompases
+     = _ k:("marcha" / "tumbao" / "acompañamiento" / "acompanamiento" / "ritmo") _ v:compasOListaDeCompases _ {
              if (v.length == 0) {
              return error(k + " " + 'requiere uno o más compases')
-           } else {
-    // Process the compases with velocity information
-
-        
-           // SIMPLIFIED: Just return the parte structure, velocities will be processed later
+           } else {         
          return createNestedProperty("parte", { type: k, parteList: v });
            }
-    }
-    
+        }
+        / _ k:("punteo") _  v:compasOListaDeCompases _ {
+        if (v.length == 0) {
+                    return error(k + " " + 'requiere uno o más compases')
+                  } else {         
+                return createNestedProperty("parte", { type: k, parteList: v });
+                  }
+                }
+/*
+listaConfigPunteo 
+= configUsarEscalaJazzPunteo
+/ configTipoOrnamentoPunteo
+/ configMantenerNotasObjetivoPunteo 
+/ configDuracionPasosPunteo
+/ configSubdivisionMinimaPunteo
+/ configEspaciadoPasosPunteo
+
+configUsarEscalaJazzPunteo =  "true" { return true; } / "false" { return false; }
+configTipoOrnamentoPunteo = _ ("ornamento" / "o") _ o:("chromatic" / "scalar" / "arpeggiated") _ {return createProperty ("tipoOrnamento", o)}
+configMantenerNotasObjetivoPunteo = "true" { return true; } / "false" { return false; }
+configDuracionPasosPunteo = r:number { return r + 'n'; } // ex. '8n'
+configSubdivisionMinimaPunteo = r:number { return r + 'n'; } // ex. '4n'
+configEspaciadoPasosPunteo = number
+  */
+
+    compasOListaDeCompases 
+     = listaDeCompases
+    / compasSimpleWrapped
+
+    // Wrap single measures in an array to maintain consistency
+compasSimpleWrapped
+ = compas:compasSimple {
+     return [compas]; // Always return an array of measures
+ }
+
     // TODO lista de lista de parte
     listaDeCompases
       =  _ "[" _ ls:compas|.., _ "|" _ | _ "]"  {
@@ -607,16 +828,13 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
             compasesAplanados.push(compas);
           }
         });
-    // Note: instrumentName and parteType need to be passed from the calling context
-            // This will require restructuring how these are called from the 'propiedad' rule
+  
             return asignarNumeroDeCompas(compasesAplanados)
          }
          
     compas
-      = compasConRepeticion
-      / compasSimple
-    
-    
+      = compasConRepeticionMultiple
+      / compasSimple  
     
       
     compasSimple 
@@ -633,9 +851,48 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
           return error('El tamano del compas es mayor a ' + datosDelPrograma.estadoGlobal.compas)
         }
       }
+
+      // Nueva regla para repetición de múltiples compases
+  compasConRepeticionMultiple 
+    = ":" _ compases:compasEnRepeticion|.., _ "|" _ | _ ":" _ rep:repeticionCompas? _  {
+        // Validar cada compás individual
+        let compasesValidados = [];
+        
+        for (let compas of compases) {
+          let tamanoDelCompas = compas.reduce((acc, obj) => acc + duracionNotaADuracionEnTiempo(obj.duration), 0);
+          
+          if (tamanoDelCompas == datosDelPrograma.estadoGlobal.compas) {
+            let compasBase = asignarPosTiempoDeNotasPorCompas(compas);
+            compasesValidados.push(compasBase);
+          } else if (tamanoDelCompas < datosDelPrograma.estadoGlobal.compas) {
+            return error('El tamano del compas es menor a ' + datosDelPrograma.estadoGlobal.compas)
+          } else if (tamanoDelCompas > datosDelPrograma.estadoGlobal.compas) {
+            return error('El tamano del compas es mayor a ' + datosDelPrograma.estadoGlobal.compas)
+          }
+        }
+        
+        // Si no se especifica repetición, usar 2 por defecto
+        let veces = rep ? rep.veces : 2;
+        let resultado = [];
+        
+        for (let i = 0; i < veces; i++) {
+          // Agregar todos los compases en cada repetición
+          compasesValidados.forEach(compas => {
+            resultado.push(compas.map(n => ({ ...n, time: n.time })));
+          });
+        }
+        
+        return resultado;
+    }
+
+    // Nueva regla para manejar compases dentro de repeticiones múltiples
+  compasEnRepeticion
+    = _ ls:parte|.., _| _ {
+        return ls; // Retorna las partes sin procesar, se validarán en compasConRepeticionMultiple
+    }
     
-    compasConRepeticion 
-      = ":" _ notas:parte|.., _| _ ":" _ rep:repeticionCompas {
+   compasConRepeticion 
+      = ":" _ notas:parte|.., _| _ ":" _ rep:repeticionCompas? {
           let tamanoDelCompas = notas.reduce((acc, obj) => acc + duracionNotaADuracionEnTiempo(obj.duration), 0);
     
       if (tamanoDelCompas == datosDelPrograma.estadoGlobal.compas) {
@@ -643,7 +900,9 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
           let compasBase = asignarPosTiempoDeNotasPorCompas(notas);
           let compases = [];
     
-          for (let i = 0; i < rep.veces; i++) {
+          let veces = rep ? rep.veces : 2;
+
+          for (let i = 0; i < veces; i++) {
             compases.push(compasBase.map(n => ({ ...n, time: n.time })));
           }
     
@@ -654,8 +913,6 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
           return error('El tamano del compas es mayor a ' + datosDelPrograma.estadoGlobal.compas)
         }
       }
-    
-    
        
     //nueva regla para manejar la sintaxis de repeticion
     repeticionCompas
@@ -726,6 +983,7 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
        / "aug"
        / "sus2"
        / "sus4"
+       / "7"
        
        
         
@@ -756,7 +1014,7 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
        / ritmoMasGradoDelBajo
        / ritmoMasTipoDeGolpeDeLaConga
        / ritmoSinGradoDelBajo
-      /  marchaSinGolpeDeLaConga
+  //    /  marchaSinGolpeDeLaConga
       / silenciosDeFigurasMusicales
       
       
@@ -777,11 +1035,13 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
        return Object.assign(f, g)
        }
        
-     marchaSinGolpeDeLaConga
+  /*   marchaSinGolpeDeLaConga
        = _ f:figuraMusical {
        let g = createProperty("note", 'C4');
        return Object.assign(f, g)
        }
+
+    */   
        
     ritmoMasGradoDelBajoMasOctavaRelativa
        = _ r:ritmoMasGradoDelBajo _ o:octavaRelativa _ {
@@ -812,7 +1072,6 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
     gradoDelBajo 
        = n:number {return createProperty("note", n);}
     
-    //grados bajo
     golpeDeLasCongas
        = _ 'a' _ {return createProperty("note", "C4")}
        / _ 's' {return createProperty("note", "D4")}
@@ -839,12 +1098,20 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
        
        
     ///////// acordes estado global   
+    listaDeAcordesGlobalesOlistaDeAcordeGlobal
+    = listaDeAcordesGlobales
+    / listaDeAcordeGlobalWrapped
+ 
     listaDeAcordesGlobales
-       =  ls:listaDeAcordeGlobal|.., _|  {return ls}
+       =  _ "[" _ ls:listaDeAcordeGlobal|.., _ "|" | _ "]" _ {return ls}
     
-    
+      listaDeAcordeGlobalWrapped
+      = acordeGlobal:listaDeAcordeGlobal {
+          return [acordeGlobal]; // Always return an array of measures
+      }
+
     listaDeAcordeGlobal
-       = _ "|" _ ls:acordeGlobal|.., _| _ "|" _ {
+       = _  ls:acordeGlobal|.., _| _  {
               if (ls.length == 0) {
                return error('Armonia/acordes requiere uno o más acordes')
               } else return ls

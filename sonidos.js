@@ -39,6 +39,9 @@ export const sonidos = {
    ],
   guiro: [
     {nombre: "guiro-metalico/"}
+  ], 
+  jamblock: [
+    {nombre: "jamblock/"}
   ]
    
 };
@@ -59,7 +62,8 @@ function generateSoundUrls(category, soundConfig) {
     bombo: ['C2'], // Kick drum uses C2
     guiro: ['C2'],
     contratiempo: ['F%232'], // Snare/backbeat uses C2
-    congas: ['quinto_abierto', 'quinto_palma', 'quinto_muteado', 'quinto_talon', 'quinto_punta'] 
+    congas: ['quinto_abierto', 'quinto_palma', 'quinto_muteado', 'quinto_talon', 'quinto_punta'], 
+    jamblock: ['jamblock0'] // Jam block uses specific samples
   };
   
   const notes = noteMap[category] || ['C4'];
