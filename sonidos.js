@@ -26,22 +26,37 @@ export const sonidos = {
     { nombre: "sawLead/" }
   ],
   bombo: [
-    { nombre: "bomboRoomSet/" },
+    //3
+    { nombre: "bomboEthnicSet/" },
+    {nombre: "bomboRoomSet/" },
+    { nombre: "bomboStandardSet3/" },
     { nombre: "bomboStandardSet4/" }
   ],
   contratiempo: [
+    //2
     { nombre: "contrasRoomSet/" },
     { nombre: "contrasStandardSet4/" }
   ], 
    congas: [
+    //2
     { nombre: "quinto-set-uno/" },
     { nombre: "quinto-set-dos/" }, 
    ],
   guiro: [
-    {nombre: "guiro-metalico/"}
+    //7
+    {nombre: "guiro-metalico/"}, 
+    {nombre: "guiraSintetica/"},
+    {nombre: "guiro-madera-corto/"},
+    {nombre: "guiro-madera-largo/"},
+    {nombre: "guiro-maracas/"},
+    {nombre: "guiro-shaker/"},
+    {nombre: "guiro-shaker2/"},
   ], 
   jamblock: [
-    {nombre: "jamblock/"}
+    //3
+    {nombre: "jamblock/"}, 
+    {nombre: "jamblockAgudoStandardSet1/"},
+    {nombre: "jamblockGraveStandardSet2/"}
   ]
    
 };
