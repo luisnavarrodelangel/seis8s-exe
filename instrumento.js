@@ -754,7 +754,9 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
       Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
-        jamblockSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        if (value.note !== null) {
+         jamblockSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
     }, parteDelJamblock).start(0);
         
       console.log('Sequence created for jamblock' + id.toString(), id, sequences[id]);
@@ -800,7 +802,9 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
      
       Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
-        contrasSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        if (value.note !== null) {
+          contrasSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
     }, parteDelContratiempo).start(0);
         
       console.log('Sequence created for contras' + id.toString(), id, sequences[id]);
@@ -845,7 +849,9 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
      
       Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
-        congaSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        if (value.note !== null) {
+          congaSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
     }, parteDeLaConga).start(0);
         
       console.log('Sequence created for conga' + id.toString(), id, sequences[id]);
@@ -891,7 +897,9 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
       Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
-        guiroSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        if (value.note !== null) {
+          guiroSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
     }, parteDelguiro).start(0);
         
       console.log('Sequence created for guiro' + id.toString(), id, sequences[id]);
