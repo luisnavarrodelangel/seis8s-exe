@@ -27,10 +27,11 @@ export const sonidos = {
   ],
   bombo: [
     //3
-    { nombre: "bomboEthnicSet/" },
     {nombre: "bomboRoomSet/" },
     { nombre: "bomboStandardSet3/" },
-    { nombre: "bomboStandardSet4/" }
+    { nombre: "bomboStandardSet4/" }, 
+    { nombre: "bomboEthnicSet/" },
+
   ],
   contratiempo: [
     //2
@@ -43,11 +44,11 @@ export const sonidos = {
     { nombre: "quinto-set-dos/" }, 
    ],
   guiro: [
-    //7
+    //5
     {nombre: "guiro-metalico/"}, 
-    {nombre: "guiraSintetica/"},
+    // {nombre: "guiraSintetica/"},
     {nombre: "guiro-madera-corto/"},
-    {nombre: "guiro-madera-largo/"},
+    // {nombre: "guiro-madera-largo/"},
     {nombre: "guiro-maracas/"},
     {nombre: "guiro-shaker/"},
     {nombre: "guiro-shaker2/"},
