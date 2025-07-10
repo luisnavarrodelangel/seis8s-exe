@@ -1102,21 +1102,42 @@ compasSimpleWrapped
     = listaDeAcordesGlobales
     / listaDeAcordeGlobalWrapped
  
+    /*listaDeAcordesGlobales
+       =  _ "[" _ ls:listaDeAcordeGlobal|.., _ "|" | _ "]" _ {return ls}*/
+
+
     listaDeAcordesGlobales
-       =  _ "[" _ ls:listaDeAcordeGlobal|.., _ "|" | _ "]" _ {return ls}
+  = _ "[" _ contenido:contenidoDeCompases|.., _ "|" | _ "]" _ { 
+      return contenido;
+    } 
+
     
       listaDeAcordeGlobalWrapped
-      = acordeGlobal:listaDeAcordeGlobal {
-          return [acordeGlobal]; // Always return an array of measures
+      = acordeGlobal:listaDeAcordeGlobal  {
+          return acordeGlobal; // Always return an array of measures
       }
 
+contenidoDeCompases
+  = elementos:(acordesConRepeticion / listaDeAcordeGlobal) _ {
+      return elementos;
+    }
+
+acordesConRepeticion
+  = _ ":"
+    _ acorde:acordeGlobal
+    _ ":"
+    _ rep:entero {
+      // This returns an array with the chord repeated "rep" times
+      return Array(rep).fill(acorde);
+    }
+       
     listaDeAcordeGlobal
        = _  ls:acordeGlobal|.., _| _  {
               if (ls.length == 0) {
                return error('Armonia/acordes requiere uno o más acordes')
               } else return ls
              }
-       
+
     acordeGlobal = _ letra:letra alteracion:alteracion? _ cualidad:cualidad? _ {
       return letra + (alteracion ?? "") + (cualidad ?? "");
     }

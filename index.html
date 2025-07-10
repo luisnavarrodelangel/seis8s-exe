@@ -269,10 +269,14 @@
                     @input="convertInput"
                     @keydown.shift.enter.prevent="evaluate"
                     @keydown.shift.e.prevent="mandarSaludos()"
-                    @keydown.ctrl="stopShortCut($event); incrementarTamanoDeTextoShortCut($event); reducirTamanoDeTextoShortCut()" 
+                    @keydown.ctrl="stopShortCut($event); incrementarTamanoDeTextoShortCut($event); reducirTamanoDeTextoShortCut($event);" 
+                   
+                    @keydown.ctrl.s.prevent="downloadText"
+                    tabindex="0"
+
+
                ></textarea>
       </foreignobject>
-    
 </g>
   </g>
   </g>
@@ -320,7 +324,7 @@
 <g id="abrirDocumento" fill="transparent"> 
 <g id="abrirDocumentoIcono">
 <foreignObject  v-bind:x="iconosMenuDerechoXpos" v-bind:y="folderOpenIconYpos" width="40" height="40"> 
- <input type="file" accept=".txt" id="fileInput" @change="loadFile" style="display: none">
+ <input ref="fileInput" type="file" accept=".txt" id="fileInput" @change="loadFile" style="display: none">
  <label for="fileInput" class="material-symbols-outlined iconos" style="font-size: 2em"> folder_open </label>
 </foreignObject>
   </g>
@@ -390,7 +394,12 @@
 
 <!--  Bannertext    -->
   <foreignobject  x="559.09" y="10" width="594.94" height="91.11" rx="5.5" >
-   <p name="bannerText" id="textoDelBanner" > {{textoDelBanner}}</p>
+   <div class="marquee" >
+   <div name="bannerText" class="marqueeItem" > {{textoDelBanner}} </div>
+   <!-- <div name="bannerTexttwo" class="marqueeItem" > {{textoDelBanner}} </div> -->
+   <!-- <div name="bannerTextThree" class="marqueeItem" > {{textoDelBanner}} </div> -->
+   </div>
+
  </foreignobject>
 </g>
   
@@ -453,6 +462,7 @@
 
   </div>
     <script type="module" src="vue.js"></script> 
+    
 <!--     <script src="vue.js"></script>  -->
 
   </body>

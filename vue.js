@@ -160,7 +160,8 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
 
     };
   },
-  
+
+
   
 
   methods: {
@@ -551,6 +552,9 @@ activarDocumento(index) {
         }
       }
     },
+
+   
+    
     
 mandarSaludos() {
   
@@ -604,7 +608,7 @@ mandarSaludos() {
       this.textSize = updatedTextSize;
     },
 
-    reducirTamanoDeTextoShortCut() {
+    reducirTamanoDeTextoShortCut(event) {
       if (event.ctrlKey && event.key === "-") {
         this.zoomInOrOut = 'zoom_out';
         this.sizeBase--;
@@ -614,6 +618,7 @@ mandarSaludos() {
     },
 
     downloadText() {
+           
       const blob = new Blob(
         [this.docs[this.indiceDelDocumentoActivo].textEditor],
         { type: "text/plain" }
@@ -626,6 +631,18 @@ mandarSaludos() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+       
+    },
+
+    handleKeydown(event) {
+    if (event.ctrlKey && event.key.toLowerCase() === "o") {
+        event.preventDefault();
+        this.triggerFileInput();
+      }
+    },
+
+    triggerFileInput() {
+      this.$refs.fileInput.click();
     },
 
     loadFile(event) {
