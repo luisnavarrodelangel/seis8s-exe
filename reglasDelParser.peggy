@@ -1102,14 +1102,21 @@ compasSimpleWrapped
     = listaDeAcordesGlobales
     / listaDeAcordeGlobalWrapped
  
-    /*listaDeAcordesGlobales
-       =  _ "[" _ ls:listaDeAcordeGlobal|.., _ "|" | _ "]" _ {return ls}*/
+    /* listaDeAcordesGlobales
+       =  _ "[" _ ls:listaDeAcordeGlobal|.., _ "|" | _ "]" _ {return ls} */
 
 
     listaDeAcordesGlobales
   = _ "[" _ contenido:contenidoDeCompases|.., _ "|" | _ "]" _ { 
-      return contenido;
-    } 
+ return contenido.flatMap(element => {
+        if (Array.isArray(element) && Array.isArray(element[0])) {
+            // This is from acordesConRepeticion - already array of measures
+            return element;
+        } else {
+            // This is from listaDeAcordeGlobal - wrap as single measure
+            return [element];
+        }
+    });    } 
 
     
       listaDeAcordeGlobalWrapped
@@ -1119,8 +1126,11 @@ compasSimpleWrapped
 
 contenidoDeCompases
   = elementos:(acordesConRepeticion / listaDeAcordeGlobal) _ {
-      return elementos;
-    }
+        // acordesConRepeticion returns [["Am"], ["Am"]], listaDeAcordeGlobal returns ["Bm", "Dm"]
+    // We need to return individual measures, not wrap them again
+    return elementos;
+  }
+    
 
 acordesConRepeticion
   = _ ":"
@@ -1128,7 +1138,7 @@ acordesConRepeticion
     _ ":"
     _ rep:entero {
       // This returns an array with the chord repeated "rep" times
-      return Array(rep).fill(acorde);
+      return Array.from({ length: rep }, () => acorde.slice());
     }
        
     listaDeAcordeGlobal

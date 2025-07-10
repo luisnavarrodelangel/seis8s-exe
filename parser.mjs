@@ -614,17 +614,26 @@ function peg$parse(input, options) {
   function peg$f64() {return createProperty("duration", '8n');  }
   function peg$f65() {return createProperty("duration", '16n');  }
   function peg$f66(contenido) {    
-         return contenido;
-  }
+    return contenido.flatMap(element => {
+           if (Array.isArray(element) && Array.isArray(element[0])) {
+               // This is from acordesConRepeticion - already array of measures
+               return element;
+           } else {
+               // This is from listaDeAcordeGlobal - wrap as single measure
+               return [element];
+           }
+       });  }
   function peg$f67(acordeGlobal) {
     return [acordeGlobal]; // Always return an array of measures
   }
   function peg$f68(elementos) {
+    // acordesConRepeticion returns [["Am"], ["Am"]], listaDeAcordeGlobal returns ["Bm", "Dm"]
+    // We need to return individual measures, not wrap them again
     return elementos;
   }
   function peg$f69(acorde, rep) {
     // This returns an array with the chord repeated "rep" times
-    return Array(rep).fill(acorde);
+    return Array.from({ length: rep }, () => acorde.slice());
   }
   function peg$f70(ls) {
     if (ls.length == 0) {
