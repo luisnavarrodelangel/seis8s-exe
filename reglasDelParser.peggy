@@ -1114,7 +1114,7 @@ compasSimpleWrapped
     
       listaDeAcordeGlobalWrapped
       = acordeGlobal:listaDeAcordeGlobal  {
-          return acordeGlobal; // Always return an array of measures
+          return [acordeGlobal]; // Always return an array of measures
       }
 
 contenidoDeCompases
@@ -1124,7 +1124,7 @@ contenidoDeCompases
 
 acordesConRepeticion
   = _ ":"
-    _ acorde:acordeGlobal
+    _ acorde:listaDeAcordeGlobal
     _ ":"
     _ rep:entero {
       // This returns an array with the chord repeated "rep" times

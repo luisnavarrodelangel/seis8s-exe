@@ -617,7 +617,7 @@ function peg$parse(input, options) {
          return contenido;
   }
   function peg$f67(acordeGlobal) {
-    return acordeGlobal; // Always return an array of measures
+    return [acordeGlobal]; // Always return an array of measures
   }
   function peg$f68(elementos) {
     return elementos;
@@ -2964,26 +2964,21 @@ function peg$parse(input, options) {
     }
     if (s2 !== peg$FAILED) {
       s3 = peg$parse_();
-      s4 = peg$parseacordeGlobal();
-      if (s4 !== peg$FAILED) {
-        s5 = peg$parse_();
-        if (input.charCodeAt(peg$currPos) === 58) {
-          s6 = peg$c38;
-          peg$currPos++;
-        } else {
-          s6 = peg$FAILED;
-          if (peg$silentFails === 0) { peg$fail(peg$e38); }
-        }
-        if (s6 !== peg$FAILED) {
-          s7 = peg$parse_();
-          s8 = peg$parseentero();
-          if (s8 !== peg$FAILED) {
-            peg$savedPos = s0;
-            s0 = peg$f69(s4, s8);
-          } else {
-            peg$currPos = s0;
-            s0 = peg$FAILED;
-          }
+      s4 = peg$parselistaDeAcordeGlobal();
+      s5 = peg$parse_();
+      if (input.charCodeAt(peg$currPos) === 58) {
+        s6 = peg$c38;
+        peg$currPos++;
+      } else {
+        s6 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$e38); }
+      }
+      if (s6 !== peg$FAILED) {
+        s7 = peg$parse_();
+        s8 = peg$parseentero();
+        if (s8 !== peg$FAILED) {
+          peg$savedPos = s0;
+          s0 = peg$f69(s4, s8);
         } else {
           peg$currPos = s0;
           s0 = peg$FAILED;
