@@ -8,7 +8,14 @@ const app = Vue.createApp({
   
 
   data() {
-    return {    
+    return {
+      // screen size params
+    svgHeight: window.innerHeight,
+    consoleHeight: 110, // height of console
+    consolePadding: 0, // 
+    barraHorizontalSuperiorHeight: 135.053,
+    
+      
      output: '',
 //       titulo y banner
       mostrarBarraHorizontalSuperiorTituloYBanner: true,
@@ -21,7 +28,8 @@ const app = Vue.createApp({
       
 //       imagen de fondo
       imagenDeFondo: 'image',
-      hrefImagenDeFondo: 'https://cdn.glitch.global/1c9491c3-d804-48fe-9d1e-06e2c4f58528/bolsa-de-papas%202.svg?v=1720034945651',
+      // hrefImagenDeFondo: 'https://cdn.glitch.global/1c9491c3-d804-48fe-9d1e-06e2c4f58528/bolsa-de-papas%202.svg?v=1720034945651',
+      hrefImagenDeFondo: 'images/dino.gif',
       zoomInOrOut: 'zoom_in',
       sizeBase: 150,
       textSize: "150%",
@@ -67,6 +75,7 @@ const app = Vue.createApp({
       menuDerechoMenuIcon: 14.6123,
       barraVerticalMenuDerechoXPos: 343.5, //406.507, 
       barraVerticalMenuDerechoYPos: 200.432,
+
       // barraVerticalRotation: "rotate(90 406.507 200.432)",
       iconosMenuDerechoXpos: 360,
       panelIzquierdoEstaVisible: true,
@@ -76,6 +85,7 @@ const app = Vue.createApp({
       codeEditorXpos: 343.5,
       consoleXpos: 343.606,
       consoleWidth:1023.96,
+      alturaDelMenuDerecho: 466.733,
       anchoDelMenuDerecho: 63.0066,
       indiceDelDocumentoActivo: 0,
       numeroDeDocumento: 1,
@@ -107,7 +117,7 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
       pantallaCompletaVerticalmente: false,
       pantallaCompletaHorizontalmente: false,
       barraHorizontalSuperiorYpos: 135.379,
-      barraHorizontalSuperiorHeight: 64.0886, 
+      alturaBarraHorizontalPanelDerecho: 64.0886, 
       yPlusSsign: 135.344,
       yDocTab:135.347,
       yCerrarDocIcono:125,
@@ -116,7 +126,7 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
       codeEditorImagenDeFondoHeight: 337.76,
       codeEditorYpos: 200.828,
       editorDeTextoHeight: 336, 
-      consoleYpos: 536.918,
+      // consoleYpos: 536.918,
       
 //       menu derecho
       menuDerechoIconXPos: 348.002,
@@ -134,14 +144,25 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
     };
   },
 
+  computed: {
+   codeEditorHeight(){
+    return this.svgHeight - this.consoleHeight -  this.barraHorizontalSuperiorHeight - this.alturaBarraHorizontalPanelDerecho
+   }, 
+   
+   calcularAlturaDelMenuDerecho() {
+      return this.svgHeight - this.barraHorizontalSuperiorHeight - this.alturaBarraHorizontalPanelDerecho
+   }, 
+
+    consoleYpos(){
+      return  this.svgHeight - this.consoleHeight;
+    }
+
+  },
+
   mounted() {
-     // let ejemploDeInicio = ` tempo 150; \n armonia |Cmaj||Dm|; \n teclado (v 0.75, acompañamiento | 𝄽  𝅘𝅥  𝄽  𝅘𝅥 || 𝄽  𝅘𝅥  𝄽  𝅘𝅥 |);\n bajo (v 1, s 3, tumbao | 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 || 𝅘𝅥  𝄽  𝅘𝅥 /3 𝅘𝅥 /5 |); \n bombo ( v 0.90, ritmo | 𝅘𝅥  𝄽 𝅘𝅥 𝅘𝅥 |); \n contras ( v 0.9, ritmo |𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮|); `
-    // this.agregaUnDocADocs();
-    // this.$nextTick(() => {
-    // this.docs[this.indiceDelDocumentoActivo].textEditor = ejemploDeInicio;
-    // this.textEditor = ejemploDeInicio;
-    // });
-    
+     window.addEventListener('resize', this.handleResize);
+     this.handleResize(); // initial update
+      
 //     populate text-to-speech drodpdown
   const speechSynthesis = window.speechSynthesis;
     speechSynthesis.onvoiceschanged = () => {
@@ -161,11 +182,19 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
     };
   },
 
-
+beforeDestroy() {
+  window.removeEventListener('resize', this.handleResize);
+},
   
 
   methods: {
-   
+  
+    handleResize() {
+      this.svgHeight = window.innerHeight;
+      console.log('svgHeight:', this.svgHeight, '→ consoleYpos:', this.consoleYposF);
+
+    },
+
     async initializeSounds() {
     
       try {
@@ -657,17 +686,25 @@ mandarSaludos() {
     },
     
 
+    // cargarImagenDeFondo(event) {
+    //   this.imagenDeFondo = 'image';
+    //   const file = event.target.files[0];
+    //   if (file) {
+    //     const reader = new FileReader();
+    //     reader.onload = (e) => {
+    //       document
+    //         .getElementById("imageSrc")
+    //         .setAttribute("href", e.target.result);
+    //     };
+    //     reader.readAsDataURL(file);
+    //   }
+    // },
+
     cargarImagenDeFondo(event) {
-      this.imagenDeFondo = 'image';
       const file = event.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          document
-            .getElementById("imageSrc")
-            .setAttribute("href", e.target.result);
-        };
-        reader.readAsDataURL(file);
+        const fileURL = URL.createObjectURL(file); // Create a URL for the file
+        document.getElementById("imageSrc").setAttribute("href", fileURL); // Set the href attribute
       }
     },
     
@@ -936,7 +973,7 @@ replaceCommand(command) {
     console.log("normal")
       this.mostrarBarraHorizontalSuperiorTituloYBanner = true
       this.barraHorizontalSuperiorYpos= 135.379
-      this.barraHorizontalSuperiorHeight= 64.0886 
+      this.barraHorizontalSuperiorHeight= 135.053 
       this.yPlusSsign= 135.344
       this.yDocTab= 135.347
       this.yCerrarDocIcono= 125
@@ -946,8 +983,8 @@ replaceCommand(command) {
       this.codeEditorImagenDeFondoYpos= 200.828
       this.codeEditorImagenDeFondoHeight = 337.76
       this.codeEditorYpos = 200.828
-      this.editorDeTextoHeight =  336//1024 
-      this.consoleYpos = 536.918
+      // this.editorDeTextoHeight =  336 //1024 
+      // this.consoleYpos = 536.918
       
       
       //   menu derecho
@@ -989,18 +1026,18 @@ replaceCommand(command) {
       console.log("completa")
       this.mostrarBarraHorizontalSuperiorTituloYBanner = false
       this.barraHorizontalSuperiorYpos= 0 
-      this.barraHorizontalSuperiorHeight= 64.0886  // + 135.053  height of barra superior with title and banner
+      this.barraHorizontalSuperiorHeight= 0  // + 135.053  height of barra superior with title and banner
       this.yPlusSsign= 0
       this.yDocTab= 0 
       this.yCerrarDocIcono= -10
 
 //       editor
-      this.codeEditorImagenDeFondoYpos= 64.0886 // barraHorizontalSuperiorHeight
+      this.codeEditorImagenDeFondoYpos= 64.0886 // alturaBarraHorizontalPanelDerecho
       this.codeEditorImagenDeFondoHeight = 337.76 + 135.053
 
-      this.codeEditorYpos =  64.0886 // barraHorizontalSuperiorHeight
-      this.editorDeTextoHeight = 336 + 135.053
-      this.consoleYpos = 536.918 + 336 // height del editor de texto
+      this.codeEditorYpos =  64.0886 // alturaBarraHorizontalPanelDerecho
+      // this.editorDeTextoHeight = 336 + 135.053
+      // this.consoleYpos = 536.918 + 336 // height del editor de texto
      
       //   menu derecho
          // this.menuDerechoXPos = 343.5

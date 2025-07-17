@@ -408,7 +408,18 @@ function getBajoVelocity(beatPosition, noteIndex) {
         tempo: 120, 
         compas: 4, 
         volumen: 1, 
-        paneo: 0.5
+        paneo: {
+          teclado: 0.5,
+          bajo: 0.5, 
+          guiro: 0.5, 
+          contras: 0.5, 
+          contratiempo: 0.5, 
+          contratiempos: 0.5,
+          jam: 0.5,
+          jamblock: 0., 
+          bombo: 0.5, 
+          congas: 0.5
+        }
       },
       pistas: []
     }
@@ -460,10 +471,13 @@ function getBajoVelocity(beatPosition, noteIndex) {
       if (!inputObject.hasOwnProperty('volumen')) {
         completedObject.volumen = datosDelPrograma.estadoGlobal.volumen;
       }
-      if (!inputObject.hasOwnProperty('paneo')) {
-        completedObject.paneo = datosDelPrograma.estadoGlobal.paneo;
-      }
-      
+     
+     if (!inputObject.hasOwnProperty('paneo')) {
+          const instrumento = completedObject.name;
+          const paneoGlobal = datosDelPrograma.estadoGlobal.paneo;
+          completedObject.paneo = paneoGlobal?.[instrumento] ?? 0.5;
+        }
+            
         // Ensure `parte` exists with a default empty `type`
       if (!inputObject.hasOwnProperty('parte')) {
         completedObject.parte.type = null,
@@ -645,14 +659,114 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
         error("volumen requiere un número entre 0 y 1");
       }
     }
-      / _ k:("paneo" / "p") _ v:decimal _  {
+      /paneos
+
+      paneos = paneoGlobalSimple
+            / paneoGlobalMultiple
+            / paneoGlobalPresets
+
+      
+    
+     paneoGlobalPresets
+       = _ "paneo" _ "preset" _ n:number _ {
+         if (n === 1) {         
+          // "Stage Left-Right" (Percussion Spread)
+         return datosDelPrograma.estadoGlobal.paneo = {
+            teclado: 0.6,
+            bajo: 0.4,
+            guiro: 0.9,
+            contras: 0.3,
+            contratiempo: 0.3,
+            contratiempos: 0.3,
+            jam: 0.1,
+            jamblock: 0.1,
+            bombo: 0.5,
+            congas: 0.4
+          };
+        } else if (n === 2){
+          //Abstract spatial: low frequencies centered, high and mids spread around
+           return datosDelPrograma.estadoGlobal.paneo = {
+                teclado: 0.2,
+                bajo: 0.5,
+                guiro: 0.8,
+                contras: 0.1,
+                contratiempo: 0.1,
+                contratiempos: 0.1,
+                jam: 0.7,
+                jamblock: 0.7,
+                bombo: 0.5,
+                congas: 0.4
+              };
+          } else if (n === 3) {
+              // Typical salsa or Latin stage setup (bajo, congas, and bongó slightly left; guiro and bells right).
+              return datosDelPrograma.estadoGlobal.paneo = {
+                  teclado: 0.6,
+                  bajo: 0.3,
+                  guiro: 0.8,
+                  contras: 0.75,
+                  contratiempo: 0.75,
+                  contratiempos: 0.75,
+                  jam: 0.85,
+                  jamblock: 0.85,
+                  bombo: 0.4,
+                  congas: 0.35
+                };
+          } else if (n === 4) {
+            //Spatial play with alternating directions — every element zig-zags L-R.
+            return datosDelPrograma.estadoGlobal.paneo = {
+                  teclado: 0.1,
+                  bajo: 0.9,
+                  guiro: 0.2,
+                  contras: 0.8,
+                  contratiempo: 0.3,
+                  contratiempos: 0.3,
+                  jam: 0.4,
+                  jamblock: 0.4,
+                  bombo: 0.5,
+                  congas: 0.5
+                };
+            } else {
+              return error("Numero de preset es muy grande. Solo hay 4 presets")
+            }  
+       }
+               
+      paneoGlobalMultiple
+        = _ k:("paneo" / "p") _ "{" _ p:(paneoGlobalInstrumentoIndividual|.., _ "," _|) _ "}"  {return p} 
+
+
+      paneoGlobalInstrumentoIndividual
+        = _ i:instrumentIdentifierForPaneo _ v:decimal _ {
+          if (v >= 0 && v <= 1) {
+          const paneo = datosDelPrograma.estadoGlobal.paneo;
+          paneo[i] = v     
+        } else {
+        error("paneo requiere un número entre 0 y 1");  
+        }
+        }
+      
+      instrumentIdentifierForPaneo
+      = i:"bajo"
+      / i:"teclado" 
+      / i:"bombo"
+      / i:"guiro"
+      / i:("contras" / "contratiempos" / "contratiempo") 
+      / i:"congas" {return createProperty("name", i)}
+      / i: ( "jamblock" / "jam") 
+
+      paneoGlobalSimple
+          = _ k:("paneo" / "p") _ v:decimal _  {
        if (v >= 0 && v <= 1) {
-          return datosDelPrograma.estadoGlobal.paneo = v
+         const paneo = datosDelPrograma.estadoGlobal.paneo;
+          Object.keys(paneo).forEach(instrument => {
+             paneo[instrument] = v
+          });
+              return null
       } else {
         error("paneo requiere un número entre 0 y 1");
       }
       }
-      
+
+
          
     pista 
       = _ i:instrumentIdentifier  _ p:listaDePropiedadesConOpciones? _  {
