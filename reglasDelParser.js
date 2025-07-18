@@ -407,7 +407,18 @@ function getBajoVelocity(beatPosition, noteIndex) {
         armonia: [['Cmaj']],
         tempo: 120, 
         compas: 4, 
-        volumen: 1, 
+        volumen: {
+          teclado: 1,
+          bajo: 1,
+          guiro: 1,
+          contras: 1,
+          contratiempo: 1,
+          contratiempos: 1,
+          jam: 1,
+          jamblock: 1,
+          bombo: 1,
+          congas: 1
+        },
         paneo: {
           teclado: 0.5,
           bajo: 0.5, 
@@ -416,7 +427,7 @@ function getBajoVelocity(beatPosition, noteIndex) {
           contratiempo: 0.5, 
           contratiempos: 0.5,
           jam: 0.5,
-          jamblock: 0., 
+          jamblock: 0.5, 
           bombo: 0.5, 
           congas: 0.5
         }
@@ -448,10 +459,7 @@ function getBajoVelocity(beatPosition, noteIndex) {
         }
     }; 
 
-      function normalizarVolumenDeInstrumento(v){
-      return v * datosDelPrograma.estadoGlobal.volumen;
-    }
-
+    
   const punteoDefaults = {
     densidadPasos: 0.7,
     usarEscalaJazz: true,
@@ -468,15 +476,26 @@ function getBajoVelocity(beatPosition, noteIndex) {
       const completedObject = { ...defaultMusicalObject, ...inputObject };
       
       // Use global volumen and paneo if not set in inputObject
-      if (!inputObject.hasOwnProperty('volumen')) {
-        completedObject.volumen = datosDelPrograma.estadoGlobal.volumen;
-      }
+      // if (!inputObject.hasOwnProperty('volumen')) {
+      //   completedObject.volumen = datosDelPrograma.estadoGlobal.volumen;
+      // }
      
      if (!inputObject.hasOwnProperty('paneo')) {
           const instrumento = completedObject.name;
           const paneoGlobal = datosDelPrograma.estadoGlobal.paneo;
           completedObject.paneo = paneoGlobal?.[instrumento] ?? 0.5;
         }
+
+    if (!inputObject.hasOwnProperty('volumen')) {
+        const instrumento = completedObject.name;
+        const volumenGlobal = datosDelPrograma.estadoGlobal.volumen;
+        completedObject.volumen = volumenGlobal?.[instrumento] ?? 1;
+          } else {
+        // Normalize the volume based on global state
+        const instrumento = completedObject.name;
+        const volumenGlobal = datosDelPrograma.estadoGlobal.volumen;
+        completedObject.volumen = completedObject.volumen * volumenGlobal?.[instrumento]
+          }
             
         // Ensure `parte` exists with a default empty `type`
       if (!inputObject.hasOwnProperty('parte')) {
@@ -652,14 +671,106 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
             }
       / _ k:("tempo" / "t") _ v:entero _  {return datosDelPrograma.estadoGlobal.tempo = v}
       / _ k:("compas" / "c") _ v:string _  {return datosDelPrograma.estadoGlobal.compas = v}
-      / _ k:("volumen" / "v") _ v:decimal _  {
+      / volumenes
+      / paneos
+
+      // volumenes globales
+        volumenes = volumenGlobalSimple
+                  / volumenGlobalMultiple
+                  / volumenGlobalPresets
+
+        volumenGlobalPresets
+          = _ "volumen" _ "preset" _ n:number _ {
+            if (n === 1) {         
+              // // Preset 1: Balanced Groove (already given)
+            return datosDelPrograma.estadoGlobal.volumen = {
+              teclado: 0.85,         // softer, supportive harmony
+              bajo: 0.85,            // driving force, but not overpowering
+              guiro: 0.75,           // bright but percussive — slightly in the background
+              contras: 0.8,         // rhythmic core, mid-layer
+              contratiempo: 0.8,    
+              contratiempos: 0.8,   
+              jam: 0.75,             // bright/tight sound — lower to avoid harshness
+              jamblock: 0.75,
+              bombo: 0.75,           // bass drum, keep full power!
+              congas: 0.75           // central to the groove — just under the bombo
+            }
+            } else if (n === 2){
+            // Percussion Forward: Emphasizes the groove and rhythm section, great for breakdowns or dance segments.
+              return datosDelPrograma.estadoGlobal.volumen = {
+                teclado: 0.90,         // very subtle harmony
+                bajo: 0.85,            // still present to support rhythm
+                guiro: 1.0,           // driving pulse, front and center
+                contras: 1.0,         // bright and energetic
+                contratiempo: 1.0,    
+                contratiempos: 1.0,   
+                jam: 0.9,             
+                jamblock: 0.9,        // strong and snappy
+                bombo: 0.9,           // essential thump
+                congas: 1.0           // percussive engine
+              };              
+              } else if (n === 3) {
+                  // "Melodic Focus" - Brings harmony and melodic elements to the front. Ideal for solo sections or intros.
+                  return datosDelPrograma.estadoGlobal.volumen = {
+                    teclado: 0.95,         // featured!
+                    bajo: 0.9,            // tight with harmony
+                    guiro: 0.75,           // light background texture
+                    contras: 0.75,         // dialed down a bit
+                    contratiempo: 0.75,    
+                    contratiempos: 0.75,
+                    jam: 0.75, 
+                    jamblock: 0.75,        // reduce clicky percs
+                    bombo: 0.75,           // soft thump to not overpower melody
+                    congas: 0.75
+                  };                  
+              } else if (n === 4) {
+                //"Low-End Power" - Thick, punchy mix with heavy emphasis on the bajo and bombo — for a club or dubby remix feel.
+                return datosDelPrograma.estadoGlobal.volumen = {
+                  teclado: 0.85,
+                  bajo: 1.0,            // big fat bass
+                  guiro: 0.75,
+                  contras: 0.75,
+                  contratiempo: 0.75,
+                  contratiempos: 0.75,
+                  jam: 0.7,
+                  jamblock: 0.7,
+                  bombo: 0.9,           // boom!
+                  congas: 0.85
+                };                
+                } else {
+                  return error("Numero de preset es muy grande. Solo hay 4 presets")
+                }  
+          }
+
+     volumenGlobalSimple =
+         _ k:("volumen" / "v") _ v:decimal _  {
+            if (v >= 0 && v <= 1) {
+               const volumen = datosDelPrograma.estadoGlobal.volumen;
+               Object.keys(volumen).forEach(instrument => {
+                 volumen[instrument] = v
+                 });
+               return null
+              } else {
+                error("volumen requiere un número entre 0 y 1");
+              }
+          }
+
+ 
+      volumenGlobalMultiple
+      = _ k:("volumen" / "v") _ "{" _ v:(volumenGlobalInstrumentoIndividual|.., _ "," _|) _ "}"  {return v} 
+
+
+      volumenGlobalInstrumentoIndividual
+      = _ i:instrumentIdentifierSinRetorno _ v:decimal _ {
         if (v >= 0 && v <= 1) {
-          return datosDelPrograma.estadoGlobal.volumen = v
+        const volumen = datosDelPrograma.estadoGlobal.volumen;
+        volumen[i] = v     
       } else {
-        error("volumen requiere un número entre 0 y 1");
+      error("volumen requiere un número entre 0 y 1");  
       }
-    }
-      /paneos
+      }
+
+      // paneos globales
 
       paneos = paneoGlobalSimple
             / paneoGlobalMultiple
@@ -735,7 +846,7 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
 
 
       paneoGlobalInstrumentoIndividual
-        = _ i:instrumentIdentifierForPaneo _ v:decimal _ {
+        = _ i:instrumentIdentifierSinRetorno _ v:decimal _ {
           if (v >= 0 && v <= 1) {
           const paneo = datosDelPrograma.estadoGlobal.paneo;
           paneo[i] = v     
@@ -744,13 +855,13 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
         }
         }
       
-      instrumentIdentifierForPaneo
+        instrumentIdentifierSinRetorno
       = i:"bajo"
       / i:"teclado" 
       / i:"bombo"
       / i:"guiro"
       / i:("contras" / "contratiempos" / "contratiempo") 
-      / i:"congas" {return createProperty("name", i)}
+      / i:"congas" 
       / i: ( "jamblock" / "jam") 
 
       paneoGlobalSimple
@@ -877,8 +988,8 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
       }
       }
       / _ k:("volumen" / "v") _ v:decimal _ {
-       if (v >= 0 && v <= 1) {
-      return createProperty("volumen", normalizarVolumenDeInstrumento(v));
+       if (v >= 0 && v <= 1) {        
+      return createProperty("volumen", v);
       } else {
         error("volumen requiere un número entre 0 y 1");
       }
@@ -1274,13 +1385,16 @@ acordesConRepeticion
     // A rule to skip whitespace and line comments
     
     decimal 
-       = head:entero tail: ("." entero)? {
+       = head:entero tail: ("." enteroString)? {
       const decimalPart = tail ? parseFloat(`0.${tail[1]}`) : 0;
       const result = head + decimalPart
         return result
         }
       
-     
+    enteroString = [0-9]+ {
+      return text(); // this keeps "001" as a string
+    }
+
     entero = [0-9]+ {
       return parseInt(text(), 10);
     }
