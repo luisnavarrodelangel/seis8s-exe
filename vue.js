@@ -10,7 +10,10 @@ const app = Vue.createApp({
   data() {
     return {
       // screen size params
+    svgWidth: window.innerWidth,
     svgHeight: window.innerHeight,
+    // viewBoxValue: '0 0 1368 668', // initial guess, will be overwritten
+
     consoleHeight: 110, // height of console
     consolePadding: 0, // 
     barraHorizontalSuperiorHeight: 135.053,
@@ -53,6 +56,7 @@ const app = Vue.createApp({
       botonEnviarSaludoContainer: 484.5,
       botonEnviarSaludoIcon: 490,
       translatePanelSaludos: "translate(0 0)",
+      anchoPanelIzquierdo: 342.932,
 
       
       mostrarOpcionesMenuPanelIzquierdo: false,
@@ -86,7 +90,8 @@ const app = Vue.createApp({
       consoleXpos: 343.606,
       consoleWidth:1023.96,
       alturaDelMenuDerecho: 466.733,
-      anchoDelMenuDerecho: 63.0066,
+      // anchoDelMenuDerecho: 63.0066,
+      anchoDelMenuDerecho: 0,
       indiceDelDocumentoActivo: 0,
       numeroDeDocumento: 1,
       estaElDocumentoActivo: false,
@@ -145,6 +150,12 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
   },
 
   computed: {
+
+    viewBoxValue() {
+        return `0 0 ${this.svgWidth} ${this.svgHeight}`;
+      },
+    
+
    codeEditorHeight(){
     return this.svgHeight - this.consoleHeight -  this.barraHorizontalSuperiorHeight - this.alturaBarraHorizontalPanelDerecho
    }, 
@@ -155,13 +166,27 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
 
     consoleYpos(){
       return  this.svgHeight - this.consoleHeight;
-    }
+    }, 
 
+    calcularCodeEditorWidth(){
+            return this.svgWidth - this.anchoPanelIzquierdo - this.anchoDelMenuDerecho// 342.932 es el ancho del panel izquierdo;
+    }, 
+    
+    
+      bannerWidth() {
+        return 1380 ; // Approximate width of your banner in original SVG units
+      },
+
+      bannerTranslateX() {
+        return (this.svgWidth - this.bannerWidth) / 2;
+      }
+    
   },
 
   mounted() {
      window.addEventListener('resize', this.handleResize);
-     this.handleResize(); // initial update
+     this.handleResize(); // initial 
+         
       
 //     populate text-to-speech drodpdown
   const speechSynthesis = window.speechSynthesis;
@@ -184,17 +209,27 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
 
 beforeDestroy() {
   window.removeEventListener('resize', this.handleResize);
+  
+
 },
   
 
   methods: {
-  
     handleResize() {
+      this.svgWidth = window.innerWidth;
       this.svgHeight = window.innerHeight;
-      console.log('svgHeight:', this.svgHeight, '→ consoleYpos:', this.consoleYposF);
 
     },
 
+    resizeSVG() {
+      const svg = document.getElementById('mySVG');
+      if (svg) {
+        svg.setAttribute('width', this.svgWidth);
+        svg.setAttribute('height', this.svgHeight);
+      }
+    },
+    
+   
     async initializeSounds() {
     
       try {
@@ -365,6 +400,7 @@ beforeDestroy() {
         !this.mostrarOpcionesMenuPanelDerecho;
 
       if (this.mostrarOpcionesMenuPanelDerecho == true) {
+        this.anchoDelMenuDerecho = 63.0066;  
         this.codeEditorImagenDeFondoXpos = this.codeEditorImagenDeFondoXpos + this.anchoDelMenuDerecho;
         this.codeEditorImagenDeFondoWidth =  this.codeEditorImagenDeFondoWidth - this.anchoDelMenuDerecho; 
           this.codeEditorXpos = this.codeEditorXpos + this.anchoDelMenuDerecho;
@@ -378,10 +414,11 @@ beforeDestroy() {
       } else if (this.mostrarOpcionesMenuPanelDerecho == false) {
         this.codeEditorImagenDeFondoXpos = this.codeEditorImagenDeFondoXpos - this.anchoDelMenuDerecho;
         this.codeEditorImagenDeFondoWidth = this.codeEditorImagenDeFondoWidth + this.anchoDelMenuDerecho; 
-          this.codeEditorXpos = this.codeEditorXpos - this.anchoDelMenuDerecho;
-          this.editorDeTextoWidth = this.editorDeTextoWidth + this.anchoDelMenuDerecho 
-          this.consoleXpos = this.consoleXpos - this.anchoDelMenuDerecho;
-          this.consoleWidth = this.consoleWidth + this.anchoDelMenuDerecho
+        this.codeEditorXpos = this.codeEditorXpos - this.anchoDelMenuDerecho;
+        this.editorDeTextoWidth = this.editorDeTextoWidth + this.anchoDelMenuDerecho 
+        this.consoleXpos = this.consoleXpos - this.anchoDelMenuDerecho;
+        this.consoleWidth = this.consoleWidth + this.anchoDelMenuDerecho
+        this.anchoDelMenuDerecho= 0
           // this.barraHorizontalSuperiorWidth= this.barraHorizontalSuperiorWidth 
 
       }
@@ -868,6 +905,9 @@ replaceCommand(command) {
   
     console.log("normal")
       this.panelIzquierdoEstaVisible = true
+      this.anchoDelMenuDerecho = 63.0066;
+      this.anchoPanelIzquierdo = 343.5;
+
       this.barraHorizontalSuperiorXpos= 343.5
       this.barraHorizontalSuperiorWidth= 1023.94 
       this.codeEditorImagenDeFondoXpos = 345.28 + this.anchoDelMenuDerecho
@@ -914,6 +954,8 @@ replaceCommand(command) {
     } else {
       console.log("completa")
       this.panelIzquierdoEstaVisible = false
+      this.anchoDelMenuDerecho = 63.0066;
+      this.anchoPanelIzquierdo = 0;
       this.barraHorizontalSuperiorXpos= 0 
       this.barraHorizontalSuperiorWidth= 1368 
       this.codeEditorImagenDeFondoXpos = -0.432373 + this.anchoDelMenuDerecho
