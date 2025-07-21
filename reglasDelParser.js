@@ -1564,9 +1564,10 @@ acordesConRepeticion
   = _ ":"
     _ acorde:listaDeAcordeGlobal
     _ ":"
-    _ rep:entero {
+    _ rep:entero? {
       // This returns an array with the chord repeated "rep" times
-      return Array.from({ length: rep }, () => acorde.slice());
+      let veces = rep ?? 2;
+      return Array.from({ length: veces }, () => acorde.slice());
     }
        
     listaDeAcordeGlobal

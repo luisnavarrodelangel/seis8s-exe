@@ -969,7 +969,8 @@ function peg$parse(input, options) {
   }
   function peg$f80(acorde, rep) {
     // This returns an array with the chord repeated "rep" times
-    return Array.from({ length: rep }, () => acorde.slice());
+    let veces = rep ?? 2;
+    return Array.from({ length: veces }, () => acorde.slice());
   }
   function peg$f81(ls) {
     if (ls.length == 0) {
@@ -3986,13 +3987,11 @@ function peg$parse(input, options) {
       if (s6 !== peg$FAILED) {
         s7 = peg$parse_();
         s8 = peg$parseentero();
-        if (s8 !== peg$FAILED) {
-          peg$savedPos = s0;
-          s0 = peg$f80(s4, s8);
-        } else {
-          peg$currPos = s0;
-          s0 = peg$FAILED;
+        if (s8 === peg$FAILED) {
+          s8 = null;
         }
+        peg$savedPos = s0;
+        s0 = peg$f80(s4, s8);
       } else {
         peg$currPos = s0;
         s0 = peg$FAILED;
