@@ -1,5 +1,11 @@
 {
-       
+
+function myFills(n) {
+    if (n === 1) {
+      return [ createProperty("duration", '4n'),  createProperty("duration", '4n'),  createProperty("duration", '4n'),  createProperty("duration", '4n')];  // 𝅘𝅥  𝅘𝅥 𝅘𝅥 𝅘𝅥 
+    }
+  }
+
 function getInstrumentVelocity(instrumentName, noteIndex, beatPosition, parte, note = null) {
       const baseVelocities = {
         'jam': 0.6, 
@@ -430,10 +436,11 @@ function getBajoVelocity(beatPosition, noteIndex) {
           jamblock: 0.5, 
           bombo: 0.5, 
           congas: 0.5
-        }
+        },    
       },
-      pistas: []
-    }
+        adornarPunteoConfigs: false,
+        pistas: []
+  }
     
     //se debe llamar nota para cuadrar con las notas de Tonejs
     const defaultElementoDeParte = {
@@ -680,7 +687,7 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
                   / volumenGlobalPresets
 
         volumenGlobalPresets
-          = _ "volumen" _ "preset" _ n:number _ {
+          = _ ("volumen"/ "v") _ "preset" _ n:number _ {
             if (n === 1) {         
               // // Preset 1: Balanced Groove (already given)
             return datosDelPrograma.estadoGlobal.volumen = {
@@ -1005,13 +1012,24 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
          return createNestedProperty("parte", { type: k, parteList: v });
            }
         }
-        / _ k:("punteo") _  v:compasOListaDeCompases _ {
+        / _ k:("punteo") _ activarAdornarPunteo? _ v:compasOListaDeCompases _ {          
         if (v.length == 0) {
                     return error(k + " " + 'requiere uno o más compases')
-                  } else {         
-                return createNestedProperty("parte", { type: k, parteList: v });
+                  } else {                       
+                   return createNestedProperty("parte", { type: k, parteList: v });
                   }
                 }
+
+
+punteoConfigs 
+ = activarAdornarPunteo
+
+ activarAdornarPunteo 
+    =  _ "(" _ "auto" _ a:(verdadero/falso) _ ")" _ {
+       datosDelPrograma.adornarPunteoConfigs = a;
+       return null
+    }
+
 /*
 listaConfigPunteo 
 = configUsarEscalaJazzPunteo
@@ -1031,13 +1049,16 @@ configEspaciadoPasosPunteo = number
 
     compasOListaDeCompases 
      = listaDeCompases
-    / compasSimpleWrapped
+    / compasSimpleWrapped 
+    
 
     // Wrap single measures in an array to maintain consistency
 compasSimpleWrapped
  = compas:compasSimple {
      return [compas]; // Always return an array of measures
  }
+
+ 
 
     // TODO lista de lista de parte
     listaDeCompases
@@ -1060,14 +1081,18 @@ compasSimpleWrapped
     compas
       = compasConRepeticionMultiple
       / compasSimple  
-    
+      
+
       
     compasSimple 
        = _  ls:parte|.., _| _ {
-        let tamanoDelCompas = ls.reduce((acc, obj) => acc + duracionNotaADuracionEnTiempo(obj.duration), 0);
+         // Flatten `ls` safely
+       const notas = ls.flatMap(item => Array.isArray(item) ? item : [item]);
+
+        let tamanoDelCompas = notas.reduce((acc, obj) => acc + duracionNotaADuracionEnTiempo(obj.duration), 0);
     
         if (tamanoDelCompas == datosDelPrograma.estadoGlobal.compas) {
-          let compasBase = asignarPosTiempoDeNotasPorCompas(ls);  // [{ time: '1n', note: 'C4', duration: '1n'}, ...]
+          let compasBase = asignarPosTiempoDeNotasPorCompas(notas);  // [{ time: '1n', note: 'C4', duration: '1n'}, ...]
           return compasBase; // retorna un solo compas (no array)
     
         } else if (tamanoDelCompas < datosDelPrograma.estadoGlobal.compas) {
@@ -1113,11 +1138,13 @@ compasSimpleWrapped
     // Nueva regla para manejar compases dentro de repeticiones múltiples
   compasEnRepeticion
     = _ ls:parte|.., _| _ {
-        return ls; // Retorna las partes sin procesar, se validarán en compasConRepeticionMultiple
+        const notas = ls.flatMap(item => Array.isArray(item) ? item : [item]);
+        return notas; // Retorna las partes sin procesar, se validarán en compasConRepeticionMultiple
     }
     
    compasConRepeticion 
-      = ":" _ notas:parte|.., _| _ ":" _ rep:repeticionCompas? {
+      = ":" _ ls:parte|.., _| _ ":" _ rep:repeticionCompas? {
+          const notas = ls.flatMap(item => Array.isArray(item) ? item : [item]);
           let tamanoDelCompas = notas.reduce((acc, obj) => acc + duracionNotaADuracionEnTiempo(obj.duration), 0);
     
       if (tamanoDelCompas == datosDelPrograma.estadoGlobal.compas) {
@@ -1145,11 +1172,7 @@ compasSimpleWrapped
         return {veces: veces}
       } 
     
-    parte 
-      = _ v:partes _ {
-           //let parte = Object.assign({}, v);
-           return completeParteObject(v); // { time: '1n', note: 'C4', duration: '1n' }
-           }
+
     
     listaDeNotas
       = _ "[" _ notaOListaDeNotas:listaDeNotaOlistaDeNotas? _ "]" _ { return notaOListaDeNotas || []; }
@@ -1161,7 +1184,7 @@ compasSimpleWrapped
     
     listaDeNotaMidiOlistaDeNotasMidi =  notaMidiOListaDeNotasMidi|.., _ "," _| 
     
-    notaOListaDeNotas =  silencio / nota / acorde / listaDeNotas 
+    notaOListaDeNotas =  nota / acorde / listaDeNotas 
     notaMidiOListaDeNotasMidi = silencio / notaMidi / listaDeNotasMidi
     
     acorde = "\"" _ n1:nota _ n2:nota? _ n3:nota? _ n4:nota? _ n5:nota? _ "\"" {
@@ -1175,19 +1198,18 @@ compasSimpleWrapped
      notaMidiSola
      = n:notaMidi {return [n]}
      
-    nota
-      = letra:letra alteracion:alteracion? octava:entero {
-      if (alteracion == null) {
-        return (letra + octava)
-      } else {
-          return (letra + alteracion + octava)
-      }
-    }
+     nota
+     = letra:letra alteracion:alteracion? octava:entero? {
+         const accidental = alteracion || "";
+         const octave = (octava !== null) ? String(octava) : "";
+         return { note: letra + accidental + octave };
+       }
+   
     
     notaMidi
       = n:entero {
-       return n
-       }
+        return {note: n}
+      }
     
     cualidad
        = "M7"
@@ -1232,21 +1254,194 @@ compasSimpleWrapped
       / 'si' {return 'B'}
     
     ////ritmo más grados del bajo
+
+   
+
+    parte 
+    = _ v:partes _ {
+        if (Array.isArray(v)) {
+          return v.map(p => completeParteObject(p))
+        } else         
+         return completeParteObject(v); // { time: '1n', note: 'C4', duration: '1n' }
+         }
     
+
     partes
       = ritmoMasGradoDelBajoMasOctavaRelativa
        / ritmoSinGradoDelBajoMasOctavaRelativa
        / ritmoMasGradoDelBajo
+       / ritmoMasNotas 
        / ritmoMasTipoDeGolpeDeLaConga
        / ritmoSinGradoDelBajo
   //    /  marchaSinGolpeDeLaConga
       / silenciosDeFigurasMusicales
+      / repiques
+
+     repiques
+      = _ ("repique" / "r") _ n:number {
+        if (n === 1) {
+          const figurasMusicales = [
+            { duration: '4n', note: 1 },
+            { duration: '4n', note: 1 },
+            { duration: '8n', note: null },
+            { duration: '8n', note: 1 },
+            { duration: '8n', note: 1 },
+            { duration: '8n', note: 1 }
+          ];
+          const resultado = figurasMusicales.map(f => Object.assign({}, f));
+        return resultado
+         
+      } else if (n === 2) {
+        const figurasMusicales = [
+          { duration: '4n', note: 1 },
+          { duration: '8n', note: 1 },
+          { duration: '8n', note: 1 },
+          { duration: '8n', note: null },
+          { duration: '8n', note: 1 },
+          { duration: '4n', note: 1 }
+        ];
+        const resultado = figurasMusicales.map(f => Object.assign({}, f));
+        return resultado
+
+      } else if (n === 3) {
+        const figurasMusicales = [
+          { duration: '8n', note: 1 },
+          { duration: '8n', note: 1 },
+          { duration: '8n', note: 1 },
+          { duration: '8n', note: 1 },
+          { duration: '4n', note: 1 },
+          { duration: '4n', note: 1 }
+        ];
+        const resultado = figurasMusicales.map(f => Object.assign({}, f));
+        return resultado
+
+      } else if (n === 4) {
+        const figurasMusicales = [
+          { duration: '8n', note: null},
+          { duration: '8n', note: 1 },
+          { duration: '8n', note: 1 },
+          { duration: '8n', note: 1 },
+          { duration: '8n', note: 1 },
+          { duration: '8n', note: 1 },
+          { duration: '4n', note: 1 }
+        ];
+        const resultado = figurasMusicales.map(f => Object.assign({}, f));
+        return resultado
+
+        // better for guira
+        } if (n === 5) {
+          const figurasMusicales = [
+            { duration: '16n', note: 1 },
+            { duration: '16n', note: 1 },
+            { duration: '16n', note: 1 },
+            { duration: '16n', note: 1 },
+            { duration: '4n', note: 1 },
+            { duration: '16n', note: 1 },
+            { duration: '16n', note: 1 },
+            { duration: '16n', note: 1 },
+            { duration: '16n', note: 1 },
+            { duration: '4n', note: 1 }
+          ];
+          const resultado = figurasMusicales.map(f => Object.assign({}, f));
+        return resultado
+         
+      } else if (n === 6) {
+        const figurasMusicales = [
+          { duration: '8n', note: 1 },
+          { duration: '8n', note: 1 },
+          { duration: '16n', note: 1 },
+          { duration: '16n', note: 1 },
+          { duration: '16n', note: null},
+          { duration: '16n', note: 1 },
+          { duration: '4n', note: 1 },
+          { duration: '16n', note: 1 },
+          { duration: '16n', note: 1 },
+          { duration: '16n', note: 1 },
+          { duration: '16n', note: 1 }          
+        ];
+        const resultado = figurasMusicales.map(f => Object.assign({}, f));
+        return resultado
+
+// for congas or bongo
+      } else if (n === 7) {
+        const figurasMusicales = [
+          { duration: '4n', note: null },
+          { duration: '4n', note: null },
+          { duration: '16n', note: "C4" },
+          { duration: '16n', note: "C4" },
+          { duration: '16n', note: "C4"},
+          { duration: '16n', note: "C4" },
+          { duration: '16n', note: "C4" },
+          { duration: '16n', note: "C4" },
+          { duration: '16n', note: "C4"},
+          { duration: '16n', note: "C4" }            
+        ];
+        const resultado = figurasMusicales.map(f => Object.assign({}, f));
+        return resultado
+
+      } else if (n === 8) {
+        const figurasMusicales = [
+            { duration: '8n', note: 'C4' },
+            { duration: '8n', note: 'C5' },
+            { duration: '8n', note: 'B4' },
+            { duration: '8n', note: 'C5' },
+            { duration: '8n', note: 'B4' },
+            { duration: '8n', note: 'C5' },
+            { duration: '4n', note: null }
+          
+          // { duration: '8n', note: "F4" },
+          // { duration: '8n', note: "D4" },
+          // { duration: '4n', note: null },
+          // { duration: '16n', note: "C4" },
+          // { duration: '16n', note: "C4" },
+          // { duration: '16n', note: "F4"},
+          // { duration: '16n', note: "C4" },
+          // { duration: '16n', note: "F4" },
+          // { duration: '16n', note: "C4" },
+          // { duration: '16n', note: "F4"},
+          // { duration: '16n', note: "C4" }            
+        ];
+        const resultado = figurasMusicales.map(f => Object.assign({}, f));
+        return resultado
+
+      } else if (n === 9) {
+        const figurasMusicales = [
+          { duration: '16n', note: "F4" },
+          { duration: '16n', note: "G4" },
+          { duration: '16n', note: null},
+          { duration: '16n', note: "F4" },
+          { duration: '16n', note: "C4" },
+          { duration: '16n', note: null },
+          { duration: '16n', note: "C4"},
+          { duration: '16n', note: "F4" },
+          { duration: '16n', note: null },
+          { duration: '16n', note: "G4" },
+          { duration: '16n', note: "C4"},
+          { duration: '16n', note: null },
+          { duration: '16n', note: "C4" },
+          { duration: '16n', note: "F4" },
+          { duration: '16n', note: "G4"},
+          { duration: '16n', note: "C4" }            
+        ];
+        const resultado = figurasMusicales.map(f => Object.assign({}, f));
+        return resultado
+      } else {return error("Numero de preset es muy grande. Solo hay 9 presets")}
+    }
+
+
+      // = _ 'a' _ {return createProperty("note", "C4")}
+      // / _ 's' {return createProperty("note", "D4")}
+      // / _ 'm' _ {return createProperty("note", "E4")}
+      // / _ 't' _ {return createProperty("note", "F4")}
+      // / _ 'p' _ {return createProperty("note", "G4")}
+        
       
-      
+    
+
     silenciosDeFigurasMusicales
        = _ s:silencioDeFiguraMusical {
        let g = createProperty("note", null);
-       return Object.assign(s, g)
+       return Object.assign({}, s, g)
        }
        
     ritmoSinGradoDelBajoMasOctavaRelativa
@@ -1257,7 +1452,7 @@ compasSimpleWrapped
     ritmoSinGradoDelBajo
        = _ f:figuraMusical {
        let g = createProperty("note", 1);
-       return Object.assign(f, g)
+       return Object.assign({}, f, g)
        }
        
   /*   marchaSinGolpeDeLaConga
@@ -1277,6 +1472,14 @@ compasSimpleWrapped
         = _ f:figuraMusical _ "/" _ g:gradoDelBajo _ {
         return Object.assign({}, f, g);
         }
+      
+    // i think notaMidi wont work since it will translate to degrees?
+    ritmoMasNotas
+       =  _ f:figuraMusical _ "/" _ n:(nota / notaMidi) {
+       return Object.assign({}, f, n)
+      }
+
+
     
     ritmoMasTipoDeGolpeDeLaConga 
         = _ f:figuraMusical _ "/" _ g:golpeDeLasCongas _ {
@@ -1409,6 +1612,13 @@ acordesConRepeticion
     word
       = $[a-z]i+
       
+    // booleans
+    verdadero
+      = ("verdadero"/"v") { return true; }
+
+    falso
+      = ("falso"/"f") { return false; }
+
       
     // Single-line comment rule
     LineComment

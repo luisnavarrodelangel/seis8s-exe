@@ -491,7 +491,7 @@ export function bajoSamplerF(indiceSonido, id, volumen, paneo) {
 
   // let seq;
 
-export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSonido, cuantizar, notas, parteTipo, parte, octavaAbsoluta) {
+export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSonido, cuantizar, notas, parteTipo, parte, octavaAbsoluta, adornarPunteo) {
   
   // const id = instrumento + "_" + identificador; //bajo_default
 
@@ -535,6 +535,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
      let _armonia = a.armoniaEnNotasExplicitas(armonia);    
      let _parte = a.lineaDelBajo(parte, _armonia, octavaAbsoluta);
+     console.log ("lineaDelBajo", _parte);
 
      Tone.loaded().then(() => {
        sequences[id] = new Tone.Part((time, value) => {
@@ -632,7 +633,9 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
       
       console.log("Before adornar:", parteTeclado_);
       console.log("Raw harmony:", armonia); // This should show [['Cmaj'], ['Dm']]
-    
+
+      if (adornarPunteo === true) {
+        console.log("melodia auto", true)
       // Enhanced melody ornamentation with jazz approach
       const configuracionMelodia = {
         densidadPasos: 0.7, // More passing notes
@@ -651,7 +654,9 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
       // Use the raw harmony array instead of armoniaT
       parteTeclado_ = p.adornarMelodia(parteTeclado_, armonia, configuracionMelodia);
       console.log("After adronar melodia", parteTeclado_);
-
+    } else {
+      console.log("melodia auto", false)
+    }
 
       Tone.loaded().then(() => {
         sequences[id] = new Tone.Part((time, value) => {

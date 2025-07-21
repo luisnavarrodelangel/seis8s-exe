@@ -34,22 +34,25 @@ export function armoniaEnNotasExplicitas(armonia){
 
 ///////////////// Melodia //////////////////////
 
-// :: [[{time, note, duration} , ... ], ... ] -> [[{tonal chord}], ... ] -> [{time, note, duration} , ... ]
-export function lineaMelodica(parte, armonia, octavaAbsoluta) {
-  const result = parte.map((p, index) => {
-    const harmonyForPart = armonia[index % armonia.length];  // Get the corresponding harmony
-    return listaDeGradosDeAcordesALineaMelodica(p, harmonyForPart, octavaAbsoluta);
-  }).flat();
-
-  console.log(result);
-  return result;
-}
-
 
 // :: {time, note duration} -> {tonal chord} -> {time, note duration}
 function asignarNotasDeLineaMelodicaSegunGradosDelAcorde(elementoParte, chordProperties, octavaAbsoluta) {
 
   if (elementoParte.note === null) return elementoParte; // Preserve rests without modifying
+  const note = elementoParte.note;
+
+  // Case 1: Already a full note like "C4" or "D#5"
+    // Each early return guards a special case. Once any of them match, the rest of the function is skipped — no else required.
+  if (typeof note === 'string' && /^[A-G][#b]?\d+$/.test(note)) {
+    return elementoParte;
+  }
+  
+  // Case 2: It's a string like "C" or "F#" → append octavaAbsoluta
+  if (typeof note === 'string') {
+    elementoParte.note = note + String(octavaAbsoluta);
+    return elementoParte;
+  }
+    // Case 3: It’s a numeric degree → map to note name from chordProperties
 
   const grado = elementoParte.note;
   const octava = octavaAbsoluta + elementoParte.octavaRelativa;
@@ -73,7 +76,16 @@ function listaDeGradosDeAcordesALineaMelodica(elementosParteList, chordPropertie
   });
 }
 
+// :: [[{time, note, duration} , ... ], ... ] -> [[{tonal chord}], ... ] -> [{time, note, duration} , ... ]
+export function lineaMelodica(parte, armonia, octavaAbsoluta) {
+  const result = parte.map((p, index) => {
+    const harmonyForPart = armonia[index % armonia.length];  // Get the corresponding harmony
+    return listaDeGradosDeAcordesALineaMelodica(p, harmonyForPart, octavaAbsoluta);
+  }).flat();
 
+  console.log(result);
+  return result;
+}
 
 
 
@@ -121,9 +133,22 @@ function listaDeGradosDeAcordesALineaMelodica(elementosParteList, chordPropertie
 
 function asignarNotasDelBajoSegunGradosDelAcorde(elementoParte, chordProperties, octavaAbsoluta) {
   if (elementoParte.note === null) return elementoParte; // Preserve rests without modifying
+  const note = elementoParte.note;
 
+// Case 1: Already a full note like "C4" or "D#5"
+  // Each early return guards a special case. Once any of them match, the rest of the function is skipped — no else required.
+if (typeof note === 'string' && /^[A-G][#b]?\d+$/.test(note)) {
+  return elementoParte;
+}
+
+// Case 2: It's a string like "C" or "F#" → append octavaAbsoluta
+if (typeof note === 'string') {
+  elementoParte.note = note + String(octavaAbsoluta);
+  return elementoParte;
+}
+  // Case 3: It’s a numeric degree → map to note name from chordProperties
   const grado = elementoParte.note;
-  const octava = octavaAbsoluta + elementoParte.octavaRelativa;
+  const octava = octavaAbsoluta + elementoParte.octavaRelativa; // _ or ^
   const notaGrado = chordProperties.grados[grado];
 
   if (notaGrado) {

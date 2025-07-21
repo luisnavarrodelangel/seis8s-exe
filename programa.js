@@ -36,7 +36,7 @@ function findDeletedItems() {
 
 
 // Main function that manages state updates and deletion tracking
-export function programa(estadoGlobal, pistas) {
+export function programa(estadoGlobal, pistas, adornarPunteoConfigs) {
   console.log("estado global", estadoGlobal)
  pistas.forEach((pista) => {
     pista.id = pista.name + "_" + pista.id; // Adjust according to actual property names
@@ -55,6 +55,7 @@ export function programa(estadoGlobal, pistas) {
   i.establecerTempo(estadoGlobal.tempo);
   let arm = a.armoniaEnNotasExplicitas(estadoGlobal.armonia);
 
+  
   // Process the current pistas
   if (pistas.length !== 0) {
     pistas.forEach(function (pista) {
@@ -69,7 +70,8 @@ export function programa(estadoGlobal, pistas) {
         pista.notas,
         pista.parte.type,
         pista.parte.parteList,
-        pista.octavaAbsoluta
+        pista.octavaAbsoluta, 
+        adornarPunteoConfigs
       );
     });
   } else {

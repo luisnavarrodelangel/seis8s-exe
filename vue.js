@@ -884,7 +884,7 @@ replaceCommand(command) {
        try {
        var datosDelPrograma = parser.parse(this.docs[this.indiceDelDocumentoActivo].textEditor);
        // var datosDelPrograma = parser.parse(this.textEditor);
-       p.programa(datosDelPrograma.estadoGlobal, datosDelPrograma.pistas);
+       p.programa(datosDelPrograma.estadoGlobal, datosDelPrograma.pistas, datosDelPrograma.adornarPunteoConfigs);
        console.log(datosDelPrograma.pistas);
        // this.errorConsole = datosDelPrograma;
        this.errorConsole = "";
