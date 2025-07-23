@@ -30,9 +30,9 @@ const app = Vue.createApp({
       selectedVoice: null,
       
 //       imagen de fondo
-      imagenDeFondo: 'image',
-      // hrefImagenDeFondo: 'https://cdn.glitch.global/1c9491c3-d804-48fe-9d1e-06e2c4f58528/bolsa-de-papas%202.svg?v=1720034945651',
-      hrefImagenDeFondo: 'images/dino.gif',
+      imagenDeFondoLabel: 'image',
+      imageUrl: 'https://cdn.glitch.global/1c9491c3-d804-48fe-9d1e-06e2c4f58528/bolsa-de-papas%202.svg?v=1720034945651',
+      // imageUrl: 'images/dino.gif',
       zoomInOrOut: 'zoom_in',
       sizeBase: 150,
       textSize: "150%",
@@ -179,11 +179,22 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
 
       bannerTranslateX() {
         return (this.svgWidth - this.bannerWidth) / 2;
-      }
-    
+      }, 
+
+      backgroundStyle() {        
+        const style = {          
+          backgroundImage: this.imageUrl ? `url('${this.imageUrl}')` : 'none',          
+          
+        };
+        console.log('Background style:', style);
+        return style       
+            }
+     
   },
 
   mounted() {
+    console.log('imageUrl on mount:', this.imageUrl);
+
      window.addEventListener('resize', this.handleResize);
      this.handleResize(); // initial 
          
@@ -740,16 +751,16 @@ mandarSaludos() {
     cargarImagenDeFondo(event) {
       const file = event.target.files[0];
       if (file) {
-        const fileURL = URL.createObjectURL(file); // Create a URL for the file
-        document.getElementById("imageSrc").setAttribute("href", fileURL); // Set the href attribute
+        this.imageUrl = URL.createObjectURL(file); // Create a URL for the file        
       }
     },
     
     removerImagenDeFondo(){
-      this.imagenDeFondo = 'delete';
-    document
-      .getElementById("imageSrc")
-      .setAttribute("href", '');
+      if(this.imageUrl){
+        URL.revokeObjectURL(this.imageUrl);
+        }
+        this.imageUrl='';
+    
     }, 
         
     mostrarOpcionSaludos(){

@@ -302,20 +302,29 @@ v-bind:x="barraHorizontalSuperiorXpos"
 
                 <!-- <rect id="panelDerecho_2" v-bind:x="codeEditorImagenDeFondoXpos" v-bind:y="codeEditorImagenDeFondoYpos" v-bind:width="codeEditorImagenDeFondoWidth" v-bind:height="codeEditorImagenDeFondoHeight" fill="url(#pattern0_1_2)" stroke="black" stroke-width="4.34896"/> -->
 
-                <rect class="editorOverlay" :x="codeEditorXpos" :y="codeEditorYpos" :width="calcularCodeEditorWidth"
+                <rect class="editorOverlay " :x="codeEditorXpos" :y="codeEditorYpos" :width="calcularCodeEditorWidth"
                   :height="codeEditorHeight" rx="4.5" stroke="black" />
                 <!-- editorDeTextoHeight -->
                 <!-- codeEditorImagenDeFondoWidth -->
                 <foreignobject class="editorDeTexto" :x="codeEditorXpos" :y="codeEditorYpos"
                   :width="calcularCodeEditorWidth" :height="codeEditorHeight" rx="4.5">
+
+                  <div class="textarea-wrapper">
+                    <div class="background-tile" :style="backgroundStyle"></div>
+
                   <!-- editorDeTextoWidth -->
                   <!-- editorDeTextoHeight -->
-                  <textarea :name="doc.name" :id="doc.textareaId" :style="{ fontSize: textSize }"
+                  <textarea :name="doc.name" :id="doc.textareaId" 
+                  :style="[{ fontSize: textSize }]"
                     v-model="doc.textEditor" @input="convertInput" @keydown.shift.enter.prevent="evaluate"
                     @keydown.shift.e.prevent="mandarSaludos()"
                     @keydown.ctrl="stopShortCut($event); incrementarTamanoDeTextoShortCut($event); reducirTamanoDeTextoShortCut($event);"
                     @keydown.ctrl.s.prevent="downloadText" tabindex="0"
-                    style="background-image: url(images/dino.gif); background-repeat: repeat;"></textarea>
+                    > 
+                  </textarea>
+                  </div>
+               
+                  
 
                 </foreignobject>
               </g>
@@ -374,7 +383,7 @@ v-bind:x="barraHorizontalSuperiorXpos"
                     <input type="file" accept="image/*" id="imageInput" @change="cargarImagenDeFondo"
                       @click.ctrl.prevent="removerImagenDeFondo" style="display: none">
                     <label for="imageInput" class="material-symbols-outlined iconos" style="font-size: 2em">
-                      {{imagenDeFondo}} </label>
+                      {{imagenDeFondoLabel}} </label>
                   </foreignObject>
                 </g>
               </g>

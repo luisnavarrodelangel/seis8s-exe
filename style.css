@@ -42,10 +42,34 @@ textarea {
   padding: 1%;
   overflow: auto;
   box-sizing: border-box;
+}
 
+
+
+.textarea-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.background-tile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* or '80px' for tiling simulation */
+  height: 100%;
+  opacity: 0.6; /* 👈 Set your desired background opacity */
+  z-index: 0;
+  background-repeat: repeat;
+  background-size: 20%;
+  background-position: top left;
+  pointer-events: none; /* So clicks go through to the textarea */
+  
 }
 
 .editorDeTexto textarea {
+  position: relative;
+  z-index: 1;
   font-family: 'GaladaModificada';
   /*       font-family: 'Courier New', Courier, monospace; */
   background: transparent;
@@ -56,13 +80,18 @@ textarea {
   /*     -webkit-background-clip: text; */
   /*             background-clip: text; */
   /*     -webkit-text-fill-color: transparent; */
+
 }
 
-
+ /* not working anymore */
 .editorOverlay {
   fill: black;
   fill-opacity: 0.3;
 }
+
+
+
+
 
 
 
