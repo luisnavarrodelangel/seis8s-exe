@@ -4,26 +4,37 @@ export const baseURL = "https://luisnavarrodelangel.github.io/sonidos-seis8s/";
 // lista de sonidos //
 export const sonidos = {
   bajo: [
-//     7
+//     9
     { nombre: "bajoSintetico/" },
     { nombre: "bajoAcustico/" },
     { nombre: "bajoAspero/" },
     { nombre: "bajoConDedos/" },
     { nombre: "bajoFretless/" },
     { nombre: "bajoPlumeado/" },
-    { nombre: "bajoSlap/" }
+    { nombre: "bajoSlap/" },
+    {nombre: "BassLead/"}, //7
+    {nombre: "BassSawLead/"} //8
   ],
   teclado: [
-//     9
-    { nombre: "stereoGrPiano/" },
-    { nombre: "stereoPiano/" },
-    { nombre: "laPiano/" },
-    { nombre: "electricPiano/" },
-    { nombre: "stringsPiano/" },
-    { nombre: "dancePiano/" },
-    { nombre: "drawBarOrgan/" },
-    { nombre: "squareLead/" },
-    { nombre: "sawLead/" }
+//     17
+    { nombre: "stereoGrPiano/" }, //0
+    { nombre: "stereoPiano/" }, //1
+    { nombre: "laPiano/" }, //2
+    { nombre: "electricPiano/" },  //3   
+    { nombre: "dancePiano/" }, //4
+    { nombre: "drawBarOrgan/" }, //5
+    { nombre: "stringsPiano/" }, //6
+    {nombre: "Calliope1/"}, //7 
+    { nombre: "squareLead/" },//8
+    { nombre: "sawLead/" },     //9
+    {nombre: "SawLead1/"}, //10 
+    {nombre: "SawArpeggio1/"}, //11
+    {nombre: "SawArpeggio2/"}, //12
+    {nombre: "SeqSquare/"}, //13 
+    {nombre: "SqrPulseLd/"}, //14
+    {nombre: "Trumpet1/"}, //15
+    {nombre: "Trumpet2/"} //16
+
   ],
   bombo: [
     //3

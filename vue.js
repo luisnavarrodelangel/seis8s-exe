@@ -26,7 +26,7 @@ const app = Vue.createApp({
 //       banner and text-to-speech
       publish: false,
       textoDelBanner: 'Cumbia!!! Cumbia!!! Cumbia!!!',
-      spanishVoices: [],
+      filteredVoices: [],
       selectedVoice: null,
       
 //       imagen de fondo
@@ -206,7 +206,10 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
       let voices = speechSynthesis.getVoices();
 
       // Filter for Spanish voices
-      this.spanishVoices = voices.filter(voice => voice.lang.includes('es'));
+      // this.spanishVoices = voices.filter(voice => voice.lang.includes('es'));
+      this.filteredVoices = voices.filter(voice =>
+        ['en-US', 'en-GB', 'es-ES', 'es-MX'].includes(voice.lang)
+      );
       
 
       // Call mandarSaludos when the voices have been populated
