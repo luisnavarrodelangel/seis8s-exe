@@ -1526,16 +1526,19 @@ compasSimpleWrapped
        
        
     ///////// acordes estado global   
-    listaDeAcordesGlobalesOlistaDeAcordeGlobal
-    = listaDeAcordesGlobales
-    / listaDeAcordeGlobalWrapped
- 
+    
     /* listaDeAcordesGlobales
        =  _ "[" _ ls:listaDeAcordeGlobal|.., _ "|" | _ "]" _ {return ls} */
 
 
+
+  listaDeAcordesGlobalesOlistaDeAcordeGlobal
+    = listaDeAcordesGlobales
+    / listaDeAcordeGlobalWrapped
+ 
+
     listaDeAcordesGlobales
-  = _ "[" _ contenido:contenidoDeCompases|.., _ "|" | _ "]" _ { 
+  = _ "[" _ contenido:contenidoDeCompases|.., _ "|" | _ "]" _{ 
  return contenido.flatMap(element => {
         if (Array.isArray(element) && Array.isArray(element[0])) {
             // This is from acordesConRepeticion - already array of measures
@@ -1552,31 +1555,59 @@ compasSimpleWrapped
           return [acordeGlobal]; // Always return an array of measures
       }
 
+      // Content inside brackets - can be repetition blocks or regular chord lists
 contenidoDeCompases
-  = elementos:(acordesConRepeticion / listaDeAcordeGlobal) _ {
-        // acordesConRepeticion returns [["Am"], ["Am"]], listaDeAcordeGlobal returns ["Bm", "Dm"]
-    // We need to return individual measures, not wrap them again
+  = elementos:( acordesConRepeticion / listaDeAcordeGlobal) _ {    
     return elementos;
   }
     
+ 
 
 acordesConRepeticion
   = _ ":"
-    _ acorde:listaDeAcordeGlobal
+    _ contenido:contenidoDeAcordesConRepeticion
     _ ":"
     _ rep:entero? {
-      // This returns an array with the chord repeated "rep" times
       let veces = rep ?? 2;
-      return Array.from({ length: veces }, () => acorde.slice());
+      let result = [];
+      
+      // Repeat the entire content structure
+      for (let i = 0; i < veces; i++) {
+        result = result.concat(contenido);
+      }
+      
+      return result;
     }
-       
-    listaDeAcordeGlobal
-       = _  ls:acordeGlobal|.., _| _  {
+
+
+// Content inside repetition brackets - can be nested structures or simple chords
+contenidoDeAcordesConRepeticion
+  = _ "[" _ contenido:contenidoDeCompases|.., _ "|" _| _ "]" _ {
+    // Handle nested brackets - same logic as listaDeAcordesGlobales
+    return contenido.flatMap(element => {
+      if (Array.isArray(element) && Array.isArray(element[0])) {
+        // This is from nested acordesConRepeticion - already array of measures
+        return element;
+      } else {
+        // This is from listaDeAcordeGlobal - wrap as single measure
+        return [element];
+      }
+    });
+  }
+  / acordes:acordeGlobal|.., _ "|" _| _ {
+    // Handle direct chord list (no nested brackets)
+    return acordes.map(acorde => [acorde]);
+  }
+
+     // Regular chord list (no repetition)
+    listaDeAcordeGlobal //[Em, Fm]
+       = _  ls:acordeGlobal|.., _ | _  {
               if (ls.length == 0) {
                return error('Armonia/acordes requiere uno o más acordes')
               } else return ls
              }
-
+    
+             // Individual chord
     acordeGlobal = _ letra:letra alteracion:alteracion? _ cualidad:cualidad? _ {
       return letra + (alteracion ?? "") + (cualidad ?? "");
     }
