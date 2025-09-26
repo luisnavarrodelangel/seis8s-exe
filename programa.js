@@ -71,7 +71,8 @@ export function programa(estadoGlobal, pistas, adornarPunteoConfigs) {
         pista.parte.type,
         pista.parte.parteList,
         pista.octavaAbsoluta, 
-        adornarPunteoConfigs
+        adornarPunteoConfigs,
+        pista.efectos
       );
     });
   } else {

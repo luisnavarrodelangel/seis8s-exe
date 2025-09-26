@@ -437,7 +437,7 @@ function getBajoVelocity(beatPosition, noteIndex) {
           bombo: 0.5, 
           congas: 0.5
         },    
-      },
+      },      
         adornarPunteoConfigs: false,
         pistas: []
   }
@@ -459,6 +459,7 @@ function getBajoVelocity(beatPosition, noteIndex) {
       paneo: 0.5, // Default panning
       sonido: 0,
       octavaAbsoluta: 5,
+      efectos: 'apagado',
       notas: ['C4'], // Default note
       parte: {
         type: null,
@@ -492,6 +493,11 @@ function getBajoVelocity(beatPosition, noteIndex) {
           const paneoGlobal = datosDelPrograma.estadoGlobal.paneo;
           completedObject.paneo = paneoGlobal?.[instrumento] ?? 0.5;
         }
+
+    if (!inputObject.hasOwnProperty('efectos')) {
+    const instrumento = completedObject.name;
+    completedObject.efectos = 'apagado'
+  }
 
     if (!inputObject.hasOwnProperty('volumen')) {
         const instrumento = completedObject.name;
@@ -1002,6 +1008,7 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
       }
       }
       / _ k:("octava" / "o") _ v:entero _ {return createProperty("octavaAbsoluta", v)}
+      / _ k:("efectos" / "e") _ v:string _ {return createProperty("efectos", v)}
 //      / _ k:("notas" / "n" / "punteo") _ v:(notaSola / listaDeNotas / notaMidiSola / listaDeNotasMidi / compasOListaDeCompases) _ {return createProperty("notas", v)}
      
      propiedadCompases
