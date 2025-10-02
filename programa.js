@@ -72,7 +72,8 @@ export function programa(estadoGlobal, pistas, adornarPunteoConfigs) {
         pista.parte.parteList,
         pista.octavaAbsoluta, 
         adornarPunteoConfigs,
-        pista.efectos
+        pista.efectos,
+        estadoGlobal.volumenRampDuration
       );
     });
   } else {

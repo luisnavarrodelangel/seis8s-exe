@@ -425,6 +425,7 @@ function getBajoVelocity(beatPosition, noteIndex) {
           bombo: 1,
           congas: 1
         },
+        volumenRampDuration: 0,
         paneo: {
           teclado: 0.5,
           bajo: 0.5, 
@@ -689,8 +690,41 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
 
       // volumenes globales
         volumenes = volumenGlobalSimple
+                  / volumenGlobalRamp
                   / volumenGlobalMultiple
                   / volumenGlobalPresets
+
+      volumenGlobalRamp
+        = _ ("volumen" / "v") _ "(" _ value:decimal _ rampTime:decimal _ ")" _ {
+            if (value >= 0 && value <= 1) {
+               const volumen = datosDelPrograma.estadoGlobal.volumen;
+               Object.keys(volumen).forEach(instrument => {
+                 volumen[instrument] = value
+                 });
+
+                 //store ramp duration for instruments to use
+                 datosDelPrograma.estadoGlobal.volumenRampDuration = rampTime;
+               return null
+              } else {
+                error("volumen requiere un número entre 0 y 1");
+              }
+          }
+        
+
+
+         volumenGlobalSimple =
+         _ k:("volumen" / "v") _ v:decimal _  {
+            if (v >= 0 && v <= 1) {
+               const volumen = datosDelPrograma.estadoGlobal.volumen;
+               Object.keys(volumen).forEach(instrument => {
+                 volumen[instrument] = v
+                 });
+               return null
+              } else {
+                error("volumen requiere un número entre 0 y 1");
+              }
+          }
+
 
         volumenGlobalPresets
           = _ ("volumen"/ "v") _ "preset" _ n:number _ {
@@ -755,19 +789,7 @@ function procesarVelocidadesEnParte(parteObject, instrumentName) {
                 }  
           }
 
-     volumenGlobalSimple =
-         _ k:("volumen" / "v") _ v:decimal _  {
-            if (v >= 0 && v <= 1) {
-               const volumen = datosDelPrograma.estadoGlobal.volumen;
-               Object.keys(volumen).forEach(instrument => {
-                 volumen[instrument] = v
-                 });
-               return null
-              } else {
-                error("volumen requiere un número entre 0 y 1");
-              }
-          }
-
+    
  
       volumenGlobalMultiple
       = _ k:("volumen" / "v") _ "{" _ v:(volumenGlobalInstrumentoIndividual|.., _ "," _|) _ "}"  {return v} 

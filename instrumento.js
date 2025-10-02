@@ -413,7 +413,7 @@ let congaSampler = {};  // Initialize bomboSampler as an object to store multipl
 let canalDeLaConga = {}; // Initialize canalDelBombo as an object to store multiple channels
 let efectosDeLaConga = {};
 
-export function congaSamplerF(indiceSonido, id, volumen, paneo, efectosConfig = {}) {
+export function congaSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig = {}) {
 
   // Initialize the sampler if it's not already created  
   if (!congaSampler[id] || congaSampler[id]._currentSound !== indiceSonido) {
@@ -466,9 +466,15 @@ export function congaSamplerF(indiceSonido, id, volumen, paneo, efectosConfig = 
     //Cadena de efectos: Sample -> Delay -> Reverb -> Canal -> Destination
     congaSampler[id].chain(delay, reverb, canalDeLaConga[id]);
     efectosDeLaConga[id] = { delay, reverb }; //guardar referencias 
+
   } else {
-    // If the channel already exists, update its parameters
-    canalDeLaConga[id].volume.value = normalizarVolumen(volumen);
+    // If the channel already exists, update its parameters with ramp
+
+    if (rampDuration > 0) {
+      canalDeLaConga[id].volume.linearRampTo(normalizarVolumen(volumen), rampDuration);
+    } else {
+      canalDeLaConga[id].volume.value = normalizarVolumen(volumen);
+    }
     canalDeLaConga[id].pan.value = (paneo * 2) - 1;
 
     // Update wet/dry values if provided
@@ -519,7 +525,7 @@ let bomboSampler = {};  // Initialize bomboSampler as an object to store multipl
 let canalDelBombo = {}; // Initialize canalDelBombo as an object to store multiple channels
 let efectosDelBombo = {};
 
-export function bomboSamplerF(indiceSonido, id, volumen, paneo, efectosConfig = {}) {
+export function bomboSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig = {}) {
 
   // Initialize the sampler if it's not already created or if sound changed
   if (!bomboSampler[id] || bomboSampler[id]._currentSound !== indiceSonido) {
@@ -569,7 +575,13 @@ export function bomboSamplerF(indiceSonido, id, volumen, paneo, efectosConfig = 
     efectosDelBombo[id] = { delay, reverb }; //guardar referencias 
   } else {
     // If the channel already exists, update its parameters
-    canalDelBombo[id].volume.value = normalizarVolumen(volumen);
+
+    if (rampDuration > 0) {
+      canalDelBombo[id].volume.linearRampTo(normalizarVolumen(volumen), rampDuration);
+    } else {
+      canalDelBombo[id].volume.value = normalizarVolumen(volumen);
+    }
+
     canalDelBombo[id].pan.value = (paneo * 2) - 1;
     // Update wet/dry values if provided
     if (config.delayWet !== undefined) {
@@ -618,7 +630,7 @@ let jamblockSampler = {};  // Initialize jamblockSampler as an object to store m
 let canalDelJamblock = {}; // Initialize canalDelJamblock as an object to store multiple channels
 let efectosDelJamblock = {};
 
-export function jamblockSamplerF(indiceSonido, id, volumen, paneo, efectosConfig = {}) {
+export function jamblockSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig = {}) {
 
   // Initialize the sampler if it's not already created or if sound changed
   if (!jamblockSampler[id] || jamblockSampler[id]._currentSound !== indiceSonido) {
@@ -668,7 +680,11 @@ export function jamblockSamplerF(indiceSonido, id, volumen, paneo, efectosConfig
     efectosDelJamblock[id] = { delay, reverb }; //guardar referencias 
   } else {
     // If the channel already exists, update its parameters
-    canalDelJamblock[id].volume.value = normalizarVolumen(volumen);
+    if (rampDuration > 0) {
+      canalDelJamblock[id].volume.linearRampTo(normalizarVolumen(volumen), rampDuration);
+    } else {
+      canalDelJamblock[id].volume.value = normalizarVolumen(volumen);
+    }
     canalDelJamblock[id].pan.value = (paneo * 2) - 1;
 
     // Update wet/dry values if provided
@@ -718,7 +734,7 @@ let canalDelContratiempo = {};
 let efectosDelContratiempo = {};
 
 
-export function contrasSamplerF(indiceSonido, id, volumen, paneo, efectosConfig = {}) {
+export function contrasSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig = {}) {
 
 
   // Initialize the sampler if it's not already created
@@ -768,7 +784,11 @@ export function contrasSamplerF(indiceSonido, id, volumen, paneo, efectosConfig 
     efectosDelContratiempo[id] = { delay, reverb }; //guardar referencias 
   } else {
     // If the channel already exists, update its parameters
-    canalDelContratiempo[id].volume.value = normalizarVolumen(volumen);
+    if (rampDuration > 0) {
+      canalDelContratiempo[id].volume.linearRampTo(normalizarVolumen(volumen), rampDuration);
+    } else {
+      canalDelContratiempo[id].volume.value = normalizarVolumen(volumen);
+    }
     canalDelContratiempo[id].pan.value = (paneo * 2) - 1;
 
     // Update wet/dry values if provided
@@ -820,7 +840,7 @@ let guiroSampler = {};  // Initialize guiroSampler as an object to store multipl
 let canalDelGuiro = {}; // Initialize canalDelguiro as an object to store multiple channels
 let efectosDelGuiro = {};
 
-export function guiroSamplerF(indiceSonido, id, volumen, paneo, efectosConfig = {}) {
+export function guiroSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig = {}) {
 
   // Initialize the sampler if it's not already created or if sound changed
   if (!guiroSampler[id] || guiroSampler[id]._currentSound !== indiceSonido) {
@@ -869,7 +889,12 @@ export function guiroSamplerF(indiceSonido, id, volumen, paneo, efectosConfig = 
     efectosDelGuiro[id] = { delay, reverb }; //guardar referencias 
   } else {
     // If the channel already exists, update its parameters
-    canalDelGuiro[id].volume.value = normalizarVolumen(volumen);
+if (rampDuration > 0) {
+      canalDelGuiro[id].volume.linearRampTo(normalizarVolumen(volumen), rampDuration);
+    } else {
+      canalDelGuiro[id].volume.value = normalizarVolumen(volumen);
+    }
+    
     canalDelGuiro[id].pan.value = (paneo * 2) - 1;
 
     // Update wet/dry values if provided
@@ -923,7 +948,7 @@ let canalDelTeclado = {};
 // Crear efectos globales o por instancia
 let efectosDelTeclado = {};
 
-export function tecladoSamplerF(indiceSonido, id, volumen, paneo, efectosConfig = {}) {
+export function tecladoSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig = {}) {
 
   if (!tecladoSampler[id] || tecladoSampler[id]._currentSoundIndex !== indiceSonido) {
     tecladoSampler[id] = new Tone.Sampler({
@@ -978,7 +1003,11 @@ export function tecladoSamplerF(indiceSonido, id, volumen, paneo, efectosConfig 
     efectosDelTeclado[id] = { delay, reverb }; //guardar referencias 
   } else {
     // If the channel already exists, update its parameters
-    canalDelTeclado[id].volume.value = normalizarVolumen(volumen);
+if (rampDuration > 0) {
+      canalDelTeclado[id].volume.linearRampTo(normalizarVolumen(volumen), rampDuration);
+    } else {
+      canalDelTeclado[id].volume.value = normalizarVolumen(volumen);
+    }    
     canalDelTeclado[id].pan.value = (paneo * 2) - 1;
 
     // Update wet/dry values if provided
@@ -1027,7 +1056,7 @@ let bajoSampler = {};
 let canalDelBajo = {};
 let efectosDelBajo = {};
 
-export function bajoSamplerF(indiceSonido, id, volumen, paneo, efectosConfig = {}) {
+export function bajoSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig = {}) {
 
   // Initialize or update the sampler if the sound has changed
   if (!bajoSampler[id] || bajoSampler[id]._currentSoundIndex !== indiceSonido) {
@@ -1040,54 +1069,59 @@ export function bajoSamplerF(indiceSonido, id, volumen, paneo, efectosConfig = {
   }
 
 
-// Default effect settings
-const defaultConfig = {
-  delayWet: 0,    // 0 = completely dry (off), 1 = completely wet (on)
-  reverbWet: 0,   // 0 = completely dry (off), 1 = completely wet (on)
-  delayTime: "8n",
-  delayFeedback: 0.3,
-  reverbDecay: 3,
-  reverbPreDelay: 0.2
-};
+  // Default effect settings
+  const defaultConfig = {
+    delayWet: 0,    // 0 = completely dry (off), 1 = completely wet (on)
+    reverbWet: 0,   // 0 = completely dry (off), 1 = completely wet (on)
+    delayTime: "8n",
+    delayFeedback: 0.3,
+    reverbDecay: 3,
+    reverbPreDelay: 0.2
+  };
 
-// Merge with provided config
-const config = { ...defaultConfig, ...efectosConfig };
+  // Merge with provided config
+  const config = { ...defaultConfig, ...efectosConfig };
 
 
-// Efectos por canal
-if (!efectosDelBajo[id]) {
-  let delay = new Tone.FeedbackDelay(config.delayTime, config.delayFeedback) //tiempo, feedback
-  let reverb = new Tone.Reverb({
-    decay: config.reverbDecay,
-    preDelay: config.reverbPreDelay
-  });
+  // Efectos por canal
+  if (!efectosDelBajo[id]) {
+    let delay = new Tone.FeedbackDelay(config.delayTime, config.delayFeedback) //tiempo, feedback
+    let reverb = new Tone.Reverb({
+      decay: config.reverbDecay,
+      preDelay: config.reverbPreDelay
+    });
 
-  //set initial dry/wet (off/on) values
-  delay.wet.value = config.delayWet;
-  reverb.wet.value = config.reverbWet;
+    //set initial dry/wet (off/on) values
+    delay.wet.value = config.delayWet;
+    reverb.wet.value = config.reverbWet;
 
-  //crear canal
-  canalDelBajo[id] = new Tone.Channel({
-    volume: normalizarVolumen(volumen), // Volume in decibels
-    pan: (paneo * 2) - 1,    // Panning from 0 (left) to 1 (right)
-  }).toDestination();
+    //crear canal
+    canalDelBajo[id] = new Tone.Channel({
+      volume: normalizarVolumen(volumen), // Volume in decibels
+      pan: (paneo * 2) - 1,    // Panning from 0 (left) to 1 (right)
+    }).toDestination();
 
-  //Cadena de efectos: Sample -> Delay -> Reverb -> Canal -> Destination
-  bajoSampler[id].chain(delay, reverb, canalDelBajo[id]);
-  efectosDelBajo[id] = { delay, reverb }; //guardar referencias 
-} else {
-  // If the channel already exists, update its parameters
-  canalDelBajo[id].volume.value = normalizarVolumen(volumen);
-  canalDelBajo[id].pan.value = (paneo * 2) - 1;
+    //Cadena de efectos: Sample -> Delay -> Reverb -> Canal -> Destination
+    bajoSampler[id].chain(delay, reverb, canalDelBajo[id]);
+    efectosDelBajo[id] = { delay, reverb }; //guardar referencias 
+  } else {
+    // If the channel already exists, update its parameters
+if (rampDuration > 0) {
+      canalDelBajo[id].volume.linearRampTo(normalizarVolumen(volumen), rampDuration);
+    } else {
+      canalDelBajo[id].volume.value = normalizarVolumen(volumen);
+    }    
+    
+    canalDelBajo[id].pan.value = (paneo * 2) - 1;
 
-  // Update wet/dry values if provided
-  if (config.delayWet !== undefined) {
-    efectosDelBajo[id].delay.wet.value = config.delayWet;
+    // Update wet/dry values if provided
+    if (config.delayWet !== undefined) {
+      efectosDelBajo[id].delay.wet.value = config.delayWet;
+    }
+    if (config.reverbWet !== undefined) {
+      efectosDelBajo[id].reverb.wet.value = config.reverbWet;
+    }
   }
-  if (config.reverbWet !== undefined) {
-    efectosDelBajo[id].reverb.wet.value = config.reverbWet;
-  }
-}
 
   // bajoSampler[id].connect(canalDelBajo[id]);
 }
@@ -1126,7 +1160,7 @@ export function bajoEffectsOn(id, preset = 'apagado') {
 
 // let seq;
 
-export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSonido, cuantizar, notas, parteTipo, parte, octavaAbsoluta, adornarPunteo, efectos) {
+export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSonido, cuantizar, notas, parteTipo, parte, octavaAbsoluta, adornarPunteo, efectos, rampDuration) {
 
   // const id = instrumento + "_" + identificador; //bajo_default
 
@@ -1163,7 +1197,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
     }
 
     // let indiceSonido = s.sonidos.bajo[indiceSonido].nombre;
-    bajoSamplerF(indiceSonido, id, volumen, paneo, efectosConfig)
+    bajoSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig)
 
 
     if (parte.length == 0) {
@@ -1238,7 +1272,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
     }
 
     // let indiceSonido = s.sonidos.teclado[indiceSonido].nombre;  
-    tecladoSamplerF(indiceSonido, id, volumen, paneo, efectosConfig);
+    tecladoSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
 
     if (parteTipo === null) {  // Logical operator corrected
       console.log("¡Comenzando secuencia del teclado!");
@@ -1384,7 +1418,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
     }
 
     // let indiceSonido = s.sonidos.bombo[indiceSonido].nombre;
-    bomboSamplerF(indiceSonido, id, volumen, paneo, efectosConfig);
+    bomboSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
 
     if (parte.length == 0) {
       console.log("¡Comenzando secuencia del bombo!");
@@ -1448,7 +1482,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
       efectosConfig = efectos;
     }
 
-    jamblockSamplerF(indiceSonido, id, volumen, paneo, efectosConfig);
+    jamblockSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
 
     if (parte.length == 0) {
       console.log("¡Comenzando secuencia del jamblock!");
@@ -1515,7 +1549,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
     }
 
     // let indiceSonido = s.sonidos.contratiempo[indiceSonido].nombre;
-    contrasSamplerF(indiceSonido, id, volumen, paneo, efectosConfig);
+    contrasSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
 
     if (parte.length == 0) {
       console.log("¡Comenzando secuencia del contratiempo!");
@@ -1581,7 +1615,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
       efectosConfig = efectos;
     }
     // let indiceSonido = s.sonidos.congas[indiceSonido].nombre;
-    congaSamplerF(indiceSonido, id, volumen, paneo, efectosConfig);
+    congaSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
 
     if (parte.length == 0) {
       console.log("¡Comenzando secuencia del conga!");
@@ -1648,7 +1682,7 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
       efectosConfig = efectos;
     }
     // let indiceSonido = s.sonidos.guiro[indiceSonido].nombre;
-    guiroSamplerF(indiceSonido, id, volumen, paneo, efectosConfig);
+    guiroSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
 
     if (parte.length == 0) {
       console.log("¡Comenzando secuencia del guiro!");
