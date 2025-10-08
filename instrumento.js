@@ -14,388 +14,467 @@ function normalizarVolumen(v) {
 ///////////// Establecer Tempo ///////////// 
 
 // :: number => Number
-export function establecerTempo(t) {
-  if (Tone.Transport.state !== "started") {
-    Tone.Transport.bpm.value = t * 2; // Set the tempo to 120 BPM
-    Tone.Transport.start();
-  } else {
-    Tone.Transport.bpm.value = t * 2;
-  }
-}
+// export function establecerTempo(t) {
+//   Tone.Transport.bpm.value = t * 2;
 
+//   if (Tone.Transport.state !== "started") {
+//     Tone.Transport.start(); // start with a tiny 0.1s delay
+//   }
+// }
+
+export function establecerTempo(t) {
+  Tone.Transport.bpm.value = t * 2;
+
+  if (Tone.Transport.state !== "started") {
+    // const startTime = Tone.now() + 0.1;
+    Tone.Transport.start(startTime);
+    Tone.Transport.start("+0.1"); 
+    // elay to be safe
+  }
+
+  // Return current global time for scheduling
+  return Tone.now();
+}
 ///////////// Detener secuencia ///////////// 
 
-export function stopSequence() {
-  // Stop the transport
-  Tone.Transport.stop();
+export function stopSequence(docId = null) {
+
+
 
   // Dispose of all bombo samplers
-  Object.keys(bomboSampler).forEach(id => {
-    bomboSampler[id].dispose();
-    delete bomboSampler[id];  // Remove reference
-  });
+
+  // (if your IDs include docId prefix like "doc_0_jam_default")
+
+
+  Object.keys(bomboSampler)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      bomboSampler[id].dispose();
+      delete bomboSampler[id];  // Remove reference
+    });
 
   // Dispose of all bombo channels
-  Object.keys(canalDelBombo).forEach(id => {
-    canalDelBombo[id].dispose();
-    delete canalDelBombo[id];  // Remove reference
-  });
+  Object.keys(canalDelBombo)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      canalDelBombo[id].dispose();
+      delete canalDelBombo[id];  // Remove reference
+    });
 
   // Dispose of all bombo effects
-  Object.keys(efectosDelBombo).forEach(id => {
-    if (efectosDelBombo[id].delay) {
-      efectosDelBombo[id].delay.dispose();
-    }
-    if (efectosDelBombo[id].reverb) {
-      efectosDelBombo[id].reverb.dispose();
-    }
-    delete efectosDelBombo[id];
-  });
+  Object.keys(efectosDelBombo)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      if (efectosDelBombo[id].delay) {
+        efectosDelBombo[id].delay.dispose();
+      }
+      if (efectosDelBombo[id].reverb) {
+        efectosDelBombo[id].reverb.dispose();
+      }
+      delete efectosDelBombo[id];
+    });
 
   // Dispose of all jam samplers
-  Object.keys(jamblockSampler).forEach(id => {
-    jamblockSampler[id].dispose();
-    delete jamblockSampler[id];  // Remove reference
-  });
+  Object.keys(jamblockSampler)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      jamblockSampler[id].dispose();
+      delete jamblockSampler[id];  // Remove reference
+    });
 
   // Dispose of all jam channels
-  Object.keys(canalDelJamblock).forEach(id => {
-    canalDelJamblock[id].dispose();
-    delete canalDelJamblock[id];  // Remove reference
-  });
+  Object.keys(canalDelJamblock)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      canalDelJamblock[id].dispose();
+      delete canalDelJamblock[id];  // Remove reference
+    });
 
   // Dispose of all Jamblock effects
-  Object.keys(efectosDelJamblock).forEach(id => {
-    if (efectosDelJamblock[id].delay) {
-      efectosDelJamblock[id].delay.dispose();
-    }
-    if (efectosDelJamblock[id].reverb) {
-      efectosDelJamblock[id].reverb.dispose();
-    }
-    delete efectosDelJamblock[id];
-  });
+  Object.keys(efectosDelJamblock)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      if (efectosDelJamblock[id].delay) {
+        efectosDelJamblock[id].delay.dispose();
+      }
+      if (efectosDelJamblock[id].reverb) {
+        efectosDelJamblock[id].reverb.dispose();
+      }
+      delete efectosDelJamblock[id];
+    });
 
   // Dispose of all guiro samplers
-  Object.keys(guiroSampler).forEach(id => {
-    guiroSampler[id].dispose();
-    delete guiroSampler[id];  // Remove reference
-  });
+  Object.keys(guiroSampler)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      guiroSampler[id].dispose();
+      delete guiroSampler[id];  // Remove reference
+    });
 
   // Dispose of all guiro channels
-  Object.keys(canalDelGuiro).forEach(id => {
-    canalDelGuiro[id].dispose();
-    delete canalDelGuiro[id];  // Remove reference
-  });
+  Object.keys(canalDelGuiro)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      canalDelGuiro[id].dispose();
+      delete canalDelGuiro[id];  // Remove reference
+    });
 
   // Dispose of all guiro effects
-  Object.keys(efectosDelGuiro).forEach(id => {
-    if (efectosDelGuiro[id].delay) {
-      efectosDelGuiro[id].delay.dispose();
-    }
-    if (efectosDelGuiro[id].reverb) {
-      efectosDelGuiro[id].reverb.dispose();
-    }
-    delete efectosDelGuiro[id];
-  });
+  Object.keys(efectosDelGuiro)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      if (efectosDelGuiro[id].delay) {
+        efectosDelGuiro[id].delay.dispose();
+      }
+      if (efectosDelGuiro[id].reverb) {
+        efectosDelGuiro[id].reverb.dispose();
+      }
+      delete efectosDelGuiro[id];
+    });
 
   // Dispose of all contras samplers
-  Object.keys(contrasSampler).forEach(id => {
-    contrasSampler[id].dispose();
-    delete contrasSampler[id];  // Remove reference
-  });
+  Object.keys(contrasSampler)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      contrasSampler[id].dispose();
+      delete contrasSampler[id];  // Remove reference
+    });
 
   // Dispose of all contras channels
-  Object.keys(canalDelContratiempo).forEach(id => {
-    canalDelContratiempo[id].dispose();
-    delete canalDelContratiempo[id];  // Remove reference
-  });
+  Object.keys(canalDelContratiempo)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      canalDelContratiempo[id].dispose();
+      delete canalDelContratiempo[id];  // Remove reference
+    });
 
   // Dispose of all contras effects
-  Object.keys(efectosDelContratiempo).forEach(id => {
-    if (efectosDelContratiempo[id].delay) {
-      efectosDelContratiempo[id].delay.dispose();
-    }
-    if (efectosDelContratiempo[id].reverb) {
-      efectosDelContratiempo[id].reverb.dispose();
-    }
-    delete efectosDelContratiempo[id];
-  });
+  Object.keys(efectosDelContratiempo)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      if (efectosDelContratiempo[id].delay) {
+        efectosDelContratiempo[id].delay.dispose();
+      }
+      if (efectosDelContratiempo[id].reverb) {
+        efectosDelContratiempo[id].reverb.dispose();
+      }
+      delete efectosDelContratiempo[id];
+    });
 
   // Dispose of all teclado samplers
-  Object.keys(tecladoSampler).forEach(id => {
-    tecladoSampler[id].dispose();
-    delete tecladoSampler[id];  // Remove reference
-  });
+  Object.keys(tecladoSampler)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      tecladoSampler[id].dispose();
+      delete tecladoSampler[id];  // Remove reference
+    });
 
   // Dispose of all teclado channels
-  Object.keys(canalDelTeclado).forEach(id => {
-    canalDelTeclado[id].dispose();
-    delete canalDelTeclado[id];  // Remove reference
-  });
+  Object.keys(canalDelTeclado)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      canalDelTeclado[id].dispose();
+      delete canalDelTeclado[id];  // Remove reference
+    });
 
   // Dispose of all teclado effects
-  Object.keys(efectosDelTeclado).forEach(id => {
-    if (efectosDelTeclado[id].delay) {
-      efectosDelTeclado[id].delay.dispose();
-    }
-    if (efectosDelTeclado[id].reverb) {
-      efectosDelTeclado[id].reverb.dispose();
-    }
-    delete efectosDelTeclado[id];
-  });
+  Object.keys(efectosDelTeclado)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      if (efectosDelTeclado[id].delay) {
+        efectosDelTeclado[id].delay.dispose();
+      }
+      if (efectosDelTeclado[id].reverb) {
+        efectosDelTeclado[id].reverb.dispose();
+      }
+      delete efectosDelTeclado[id];
+    });
 
   // Dispose of all bajo samplers
-  Object.keys(bajoSampler).forEach(id => {
-    bajoSampler[id].dispose();
-    delete bajoSampler[id];  // Remove reference
-  });
+  Object.keys(bajoSampler)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      bajoSampler[id].dispose();
+      delete bajoSampler[id];  // Remove reference
+    });
 
   // Dispose of all bajo channels
-  Object.keys(canalDelBajo).forEach(id => {
-    canalDelBajo[id].dispose();
-    delete canalDelBajo[id];  // Remove reference
-  });
+  Object.keys(canalDelBajo)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      canalDelBajo[id].dispose();
+      delete canalDelBajo[id];  // Remove reference
+    });
 
   // Dispose of all bajo effects
-  Object.keys(efectosDelBajo).forEach(id => {
-    if (efectosDelBajo[id].delay) {
-      efectosDelBajo[id].delay.dispose();
-    }
-    if (efectosDelBajo[id].reverb) {
-      efectosDelBajo[id].reverb.dispose();
-    }
-    delete efectosDelBajo[id];
-  });
+  Object.keys(efectosDelBajo)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      if (efectosDelBajo[id].delay) {
+        efectosDelBajo[id].delay.dispose();
+      }
+      if (efectosDelBajo[id].reverb) {
+        efectosDelBajo[id].reverb.dispose();
+      }
+      delete efectosDelBajo[id];
+    });
 
   // Dispose of all congas samplers
-  Object.keys(congaSampler).forEach(id => {
-    congaSampler[id].dispose();
-    delete congaSampler[id];  // Remove reference
-  });
+  Object.keys(congaSampler)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      congaSampler[id].dispose();
+      delete congaSampler[id];  // Remove reference
+    });
 
   // Dispose of all congas channels
-  Object.keys(canalDeLaConga).forEach(id => {
-    canalDeLaConga[id].dispose();
-    delete canalDeLaConga[id];  // Remove reference
-  });
+  Object.keys(canalDeLaConga)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      canalDeLaConga[id].dispose();
+      delete canalDeLaConga[id];  // Remove reference
+    });
   // Dispose of all congas effects
-  Object.keys(efectosDeLaConga).forEach(id => {
-    if (efectosDeLaConga[id].delay) {
-      efectosDeLaConga[id].delay.dispose();
-    }
-    if (efectosDeLaConga[id].reverb) {
-      efectosDeLaConga[id].reverb.dispose();
-    }
-    delete efectosDeLaConga[id];
-  });
+  Object.keys(efectosDeLaConga)
+    .filter(id => id.startsWith(docId))
+    .forEach(id => {
+      if (efectosDeLaConga[id].delay) {
+        efectosDeLaConga[id].delay.dispose();
+      }
+      if (efectosDeLaConga[id].reverb) {
+        efectosDeLaConga[id].reverb.dispose();
+      }
+      delete efectosDeLaConga[id];
+    });
 
   // Dispose of all sequences
-  Object.keys(sequences).forEach(id => {
-    sequences[id].stop();   // Stop the sequence
-    sequences[id].dispose(); // Dispose of the sequence
-    delete sequences[id];    // Remove reference
-  });
+  if (sequencesByDoc[docId]) {
+    const sequences = sequencesByDoc[docId];
+    Object.keys(sequences).forEach(id => {
+      const now = Math.max(0, Tone.now());
+      sequences[id].stop(now);   // stop safely, clamped to ≥ 0
+      sequences[id].dispose();
+      delete sequences[id];
+    });
+    delete sequencesByDoc[docId]; // Clean up the document entry
+  };
+
+
+  // Stop the transport
+  // Tone.Transport.stop();
 
   // Reset Transport position if needed
-  Tone.Transport.position = 0;
+  // Tone.Transport.position = 0;
 
+  // Check if any other doc still has active sequences
+  const otherDocsActive = Object.keys(sequencesByDoc).some(otherId => {
+    return otherId !== docId && Object.keys(sequencesByDoc[otherId]).length > 0;
+  });
 
+  // Only reset if no other document is active
+  if (!otherDocsActive) {
+    Tone.Transport.position = 0;
+  }
 }
 
-export function desconectarPistasBorradas(id) {
+export function desconectarPistasBorradas(id, docId) {
+
+  // Construct a namespaced key for this document
+  const key = `${docId}_${id}`;
+
   // Stop and dispose of any sequences if they exist
-  if (sequences[id]) {
-    sequences[id].stop();
-    sequences[id].dispose();
-    delete sequences[id];
-    console.log(`Sequence ${id} disposed`);
+  if (sequencesByDoc[docId] && sequencesByDoc[docId][id]) {
+    sequencesByDoc[docId][id].stop();
+    sequencesByDoc[docId][id].dispose();
+    delete sequencesByDoc[docId][id];
+    console.log(`Sequence ${id} disposed from doc ${docId}`);
   }
 
-  if (bomboSampler[id]) {
-    bomboSampler[id].releaseAll();
-    bomboSampler[id].disconnect();
-    bomboSampler[id].dispose();
-    delete bomboSampler[id];
+  if (bomboSampler[key]) {
+    bomboSampler[key].releaseAll();
+    bomboSampler[key].disconnect();
+    bomboSampler[key].dispose();
+    delete bomboSampler[key];
   }
 
-  if (canalDelBombo[id]) {
-    canalDelBombo[id].disconnect();
-    canalDelBombo[id].dispose();
-    delete canalDelBombo[id];
+  if (canalDelBombo[key]) {
+    canalDelBombo[key].disconnect();
+    canalDelBombo[key].dispose();
+    delete canalDelBombo[key];
   }
 
   // desconectar efectos de pistas del Bombo borradas
-  if (efectosDelBombo[id]) {
-    if (efectosDelBombo[id].delay) {
-      efectosDelBombo[id].delay.disconnect();
-      efectosDelBombo[id].delay.dispose();
+  if (efectosDelBombo[key]) {
+    if (efectosDelBombo[key].delay) {
+      efectosDelBombo[key].delay.disconnect();
+      efectosDelBombo[key].delay.dispose();
     }
-    if (efectosDelBombo[id].reverb) {
-      efectosDelBombo[id].reverb.disconnect();
-      efectosDelBombo[id].reverb.dispose();
+    if (efectosDelBombo[key].reverb) {
+      efectosDelBombo[key].reverb.disconnect();
+      efectosDelBombo[key].reverb.dispose();
     }
-    delete efectosDelBombo[id];
+    delete efectosDelBombo[key];
   }
 
-  if (jamblockSampler[id]) {
-    jamblockSampler[id].releaseAll();
-    jamblockSampler[id].disconnect();
-    jamblockSampler[id].dispose();
-    delete jamblockSampler[id];
+  if (jamblockSampler[key]) {
+    jamblockSampler[key].releaseAll();
+    jamblockSampler[key].disconnect();
+    jamblockSampler[key].dispose();
+    delete jamblockSampler[key];
   }
 
 
 
-  if (canalDelJamblock[id]) {
-    canalDelJamblock[id].disconnect();
-    canalDelJamblock[id].dispose();
-    delete canalDelJamblock[id];
+  if (canalDelJamblock[key]) {
+    canalDelJamblock[key].disconnect();
+    canalDelJamblock[key].dispose();
+    delete canalDelJamblock[key];
   }
 
   // desconectar efectos de pistas del jamblock borradas
-  if (efectosDelJamblock[id]) {
-    if (efectosDelJamblock[id].delay) {
-      efectosDelJamblock[id].delay.disconnect();
-      efectosDelJamblock[id].delay.dispose();
+  if (efectosDelJamblock[key]) {
+    if (efectosDelJamblock[key].delay) {
+      efectosDelJamblock[key].delay.disconnect();
+      efectosDelJamblock[key].delay.dispose();
     }
-    if (efectosDelJamblock[id].reverb) {
-      efectosDelJamblock[id].reverb.disconnect();
-      efectosDelJamblock[id].reverb.dispose();
+    if (efectosDelJamblock[key].reverb) {
+      efectosDelJamblock[key].reverb.disconnect();
+      efectosDelJamblock[key].reverb.dispose();
     }
-    delete efectosDelJamblock[id];
+    delete efectosDelJamblock[key];
   }
 
 
-  if (guiroSampler[id]) {
-    guiroSampler[id].releaseAll();
-    guiroSampler[id].disconnect();
-    guiroSampler[id].dispose();
-    delete guiroSampler[id];
+  if (guiroSampler[key]) {
+    guiroSampler[key].releaseAll();
+    guiroSampler[key].disconnect();
+    guiroSampler[key].dispose();
+    delete guiroSampler[key];
   }
 
-  if (canalDelGuiro[id]) {
-    canalDelGuiro[id].disconnect();
-    canalDelGuiro[id].dispose();
-    delete canalDelGuiro[id];
+  if (canalDelGuiro[key]) {
+    canalDelGuiro[key].disconnect();
+    canalDelGuiro[key].dispose();
+    delete canalDelGuiro[key];
   }
 
   // desconectar efectos de pistas del Guiro borradas
-  if (efectosDelGuiro[id]) {
-    if (efectosDelGuiro[id].delay) {
-      efectosDelGuiro[id].delay.disconnect();
-      efectosDelGuiro[id].delay.dispose();
+  if (efectosDelGuiro[key]) {
+    if (efectosDelGuiro[key].delay) {
+      efectosDelGuiro[key].delay.disconnect();
+      efectosDelGuiro[key].delay.dispose();
     }
-    if (efectosDelGuiro[id].reverb) {
-      efectosDelGuiro[id].reverb.disconnect();
-      efectosDelGuiro[id].reverb.dispose();
+    if (efectosDelGuiro[key].reverb) {
+      efectosDelGuiro[key].reverb.disconnect();
+      efectosDelGuiro[key].reverb.dispose();
     }
-    delete efectosDelGuiro[id];
+    delete efectosDelGuiro[key];
   }
 
 
-  if (contrasSampler[id]) {
-    contrasSampler[id].releaseAll();
-    contrasSampler[id].disconnect();
-    contrasSampler[id].dispose();
-    delete contrasSampler[id];
+  if (contrasSampler[key]) {
+    contrasSampler[key].releaseAll();
+    contrasSampler[key].disconnect();
+    contrasSampler[key].dispose();
+    delete contrasSampler[key];
   }
 
-  if (canalDelContratiempo[id]) {
-    canalDelContratiempo[id].disconnect();
-    canalDelContratiempo[id].dispose();
-    delete canalDelContratiempo[id];
+  if (canalDelContratiempo[key]) {
+    canalDelContratiempo[key].disconnect();
+    canalDelContratiempo[key].dispose();
+    delete canalDelContratiempo[key];
   }
 
   // desconectar efectos de pistas del Contratiempo borradas
-  if (efectosDelContratiempo[id]) {
-    if (efectosDelContratiempo[id].delay) {
-      efectosDelContratiempo[id].delay.disconnect();
-      efectosDelContratiempo[id].delay.dispose();
+  if (efectosDelContratiempo[key]) {
+    if (efectosDelContratiempo[key].delay) {
+      efectosDelContratiempo[key].delay.disconnect();
+      efectosDelContratiempo[key].delay.dispose();
     }
-    if (efectosDelContratiempo[id].reverb) {
-      efectosDelContratiempo[id].reverb.disconnect();
-      efectosDelContratiempo[id].reverb.dispose();
+    if (efectosDelContratiempo[key].reverb) {
+      efectosDelContratiempo[key].reverb.disconnect();
+      efectosDelContratiempo[key].reverb.dispose();
     }
-    delete efectosDelContratiempo[id];
+    delete efectosDelContratiempo[key];
   }
 
-  if (tecladoSampler[id]) {
-    tecladoSampler[id].releaseAll();
-    tecladoSampler[id].disconnect();
-    tecladoSampler[id].dispose();
-    delete tecladoSampler[id];
+  if (tecladoSampler[key]) {
+    tecladoSampler[key].releaseAll();
+    tecladoSampler[key].disconnect();
+    tecladoSampler[key].dispose();
+    delete tecladoSampler[key];
   }
 
-  if (canalDelTeclado[id]) {
-    canalDelTeclado[id].disconnect();
-    canalDelTeclado[id].dispose();
-    delete canalDelTeclado[id];
+  if (canalDelTeclado[key]) {
+    canalDelTeclado[key].disconnect();
+    canalDelTeclado[key].dispose();
+    delete canalDelTeclado[key];
   }
 
   // desconectar efectos de pistas del teclado borradas
-  if (efectosDelTeclado[id]) {
-    if (efectosDelTeclado[id].delay) {
-      efectosDelTeclado[id].delay.disconnect();
-      efectosDelTeclado[id].delay.dispose();
+  if (efectosDelTeclado[key]) {
+    if (efectosDelTeclado[key].delay) {
+      efectosDelTeclado[key].delay.disconnect();
+      efectosDelTeclado[key].delay.dispose();
     }
-    if (efectosDelTeclado[id].reverb) {
-      efectosDelTeclado[id].reverb.disconnect();
-      efectosDelTeclado[id].reverb.dispose();
+    if (efectosDelTeclado[key].reverb) {
+      efectosDelTeclado[key].reverb.disconnect();
+      efectosDelTeclado[key].reverb.dispose();
     }
-    delete efectosDelTeclado[id];
+    delete efectosDelTeclado[key];
   }
 
-  if (bajoSampler[id]) {
-    bajoSampler[id].releaseAll();
-    bajoSampler[id].disconnect();
-    bajoSampler[id].dispose();
-    delete bajoSampler[id];
+  if (bajoSampler[key]) {
+    bajoSampler[key].releaseAll();
+    bajoSampler[key].disconnect();
+    bajoSampler[key].dispose();
+    delete bajoSampler[key];
   }
 
-  if (canalDelBajo[id]) {
-    canalDelBajo[id].disconnect();
-    canalDelBajo[id].dispose();
-    delete canalDelBajo[id];
+  if (canalDelBajo[key]) {
+    canalDelBajo[key].disconnect();
+    canalDelBajo[key].dispose();
+    delete canalDelBajo[key];
   }
 
   // desconectar efectos de pistas del Bajo borradas
-  if (efectosDelBajo[id]) {
-    if (efectosDelBajo[id].delay) {
-      efectosDelBajo[id].delay.disconnect();
-      efectosDelBajo[id].delay.dispose();
+  if (efectosDelBajo[key]) {
+    if (efectosDelBajo[key].delay) {
+      efectosDelBajo[key].delay.disconnect();
+      efectosDelBajo[key].delay.dispose();
     }
-    if (efectosDelBajo[id].reverb) {
-      efectosDelBajo[id].reverb.disconnect();
-      efectosDelBajo[id].reverb.dispose();
+    if (efectosDelBajo[key].reverb) {
+      efectosDelBajo[key].reverb.disconnect();
+      efectosDelBajo[key].reverb.dispose();
     }
-    delete efectosDelBajo[id];
+    delete efectosDelBajo[key];
   }
 
-  if (congaSampler[id]) {
-    congaSampler[id].releaseAll();
-    congaSampler[id].disconnect();
-    congaSampler[id].dispose();
-    delete congaSampler[id];
+  if (congaSampler[key]) {
+    congaSampler[key].releaseAll();
+    congaSampler[key].disconnect();
+    congaSampler[key].dispose();
+    delete congaSampler[key];
   }
 
-  if (canalDeLaConga[id]) {
-    canalDeLaConga[id].disconnect();
-    canalDeLaConga[id].dispose();
-    delete canalDeLaConga[id];
+  if (canalDeLaConga[key]) {
+    canalDeLaConga[key].disconnect();
+    canalDeLaConga[key].dispose();
+    delete canalDeLaConga[key];
   }
 
 
   // desconectar efectos de pistas de la conga borradas
-  if (efectosDeLaConga[id]) {
-    if (efectosDeLaConga[id].delay) {
-      efectosDeLaConga[id].delay.disconnect();
-      efectosDeLaConga[id].delay.dispose();
+  if (efectosDeLaConga[key]) {
+    if (efectosDeLaConga[key].delay) {
+      efectosDeLaConga[key].delay.disconnect();
+      efectosDeLaConga[key].delay.dispose();
     }
-    if (efectosDeLaConga[id].reverb) {
-      efectosDeLaConga[id].reverb.disconnect();
-      efectosDeLaConga[id].reverb.dispose();
+    if (efectosDeLaConga[key].reverb) {
+      efectosDeLaConga[key].reverb.disconnect();
+      efectosDeLaConga[key].reverb.dispose();
     }
-    delete efectosDeLaConga[id];
+    delete efectosDeLaConga[key];
   }
 
 }
@@ -404,7 +483,7 @@ export function desconectarPistasBorradas(id) {
 ///////////// Definiciones globales de instrumentos ///////////// 
 
 // let seq1, seq2, seq3, seq4, seq5, canalDelTeclado2;
-let sequences = {};  // Object to store sequences dynamically by id
+const sequencesByDoc = {};  // { docId: { seqId: Tone.Sequence|Part, ... }, ... }
 
 ///////////// Sampler de la conga ///////////// 
 
@@ -698,7 +777,12 @@ export function jamblockSamplerF(indiceSonido, id, volumen, rampDuration, paneo,
   }
 
   // Connect the sampler to its corresponding channel
-  // jamblockSampler[id].connect(canalDelJamblock[id]);  
+  // jamblockSampler[id].connect(canalDelJamblock[id]); 
+  jamblockSampler[id].chain(
+    efectosDelJamblock[id].delay,
+    efectosDelJamblock[id].reverb,
+    canalDelJamblock[id]
+  );
 }
 
 // Simple function to control effect wetness (0 = off, 1 = full effect)
@@ -801,6 +885,11 @@ export function contrasSamplerF(indiceSonido, id, volumen, rampDuration, paneo, 
   }
 
   // contrasSampler[id].connect(canalDelContratiempo[id]); 
+  contrasSampler[id].chain(
+    efectosDelContratiempo[id].delay,
+    efectosDelContratiempo[id].reverb,
+    canalDelContratiempo[id]
+  );
 
 }
 
@@ -889,12 +978,12 @@ export function guiroSamplerF(indiceSonido, id, volumen, rampDuration, paneo, ef
     efectosDelGuiro[id] = { delay, reverb }; //guardar referencias 
   } else {
     // If the channel already exists, update its parameters
-if (rampDuration > 0) {
+    if (rampDuration > 0) {
       canalDelGuiro[id].volume.linearRampTo(normalizarVolumen(volumen), rampDuration);
     } else {
       canalDelGuiro[id].volume.value = normalizarVolumen(volumen);
     }
-    
+
     canalDelGuiro[id].pan.value = (paneo * 2) - 1;
 
     // Update wet/dry values if provided
@@ -908,6 +997,12 @@ if (rampDuration > 0) {
 
   // Connect the sampler to its corresponding channel
   // guiroSampler[id].connect(canalDelGuiro[id]);  
+
+  guiroSampler[id].chain(
+    efectosDelGuiro[id].delay,
+    efectosDelGuiro[id].reverb,
+    canalDelGuiro[id]
+  );
 }
 
 
@@ -950,7 +1045,10 @@ let efectosDelTeclado = {};
 
 export function tecladoSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig = {}) {
 
-  if (!tecladoSampler[id] || tecladoSampler[id]._currentSoundIndex !== indiceSonido) {
+  // Track if we're creating a new sampler
+  const isNewSampler = !tecladoSampler[id] || tecladoSampler[id]._currentSoundIndex !== indiceSonido;
+
+  if (isNewSampler) {
     tecladoSampler[id] = new Tone.Sampler({
       urls: { C5: s.getAudioBuffer("teclado", indiceSonido).get('C5') }, // Use indiceSonido as index
       release: 1
@@ -1003,11 +1101,11 @@ export function tecladoSamplerF(indiceSonido, id, volumen, rampDuration, paneo, 
     efectosDelTeclado[id] = { delay, reverb }; //guardar referencias 
   } else {
     // If the channel already exists, update its parameters
-if (rampDuration > 0) {
+    if (rampDuration > 0) {
       canalDelTeclado[id].volume.linearRampTo(normalizarVolumen(volumen), rampDuration);
     } else {
       canalDelTeclado[id].volume.value = normalizarVolumen(volumen);
-    }    
+    }
     canalDelTeclado[id].pan.value = (paneo * 2) - 1;
 
     // Update wet/dry values if provided
@@ -1019,7 +1117,21 @@ if (rampDuration > 0) {
     }
   }
 
-  // tecladoSampler[id].connect(canalDelTeclado[id]);
+  //  tecladoSampler[id].connect(canalDelTeclado[id]);
+  tecladoSampler[id].chain(
+    efectosDelTeclado[id].delay,
+    efectosDelTeclado[id].reverb,
+    canalDelTeclado[id]
+  );
+
+  // CRITICAL: Reconnect chain if sampler changed (runs after both if/else)
+  // if (isNewSampler) {
+  //   tecladoSampler[id].chain(
+  //     efectosDelTeclado[id].delay, 
+  //     efectosDelTeclado[id].reverb, 
+  //     canalDelTeclado[id]
+  //   );
+  // } 
 
 }
 
@@ -1059,7 +1171,9 @@ let efectosDelBajo = {};
 export function bajoSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig = {}) {
 
   // Initialize or update the sampler if the sound has changed
-  if (!bajoSampler[id] || bajoSampler[id]._currentSoundIndex !== indiceSonido) {
+  const isNewSampler = !bajoSampler[id] || bajoSampler[id]._currentSoundIndex !== indiceSonido
+
+  if (isNewSampler) {
 
     bajoSampler[id] = new Tone.Sampler({
       urls: { C4: s.getAudioBuffer("bajo", indiceSonido).get('C4') }, // Use indiceSonido as index
@@ -1106,12 +1220,12 @@ export function bajoSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efe
     efectosDelBajo[id] = { delay, reverb }; //guardar referencias 
   } else {
     // If the channel already exists, update its parameters
-if (rampDuration > 0) {
+    if (rampDuration > 0) {
       canalDelBajo[id].volume.linearRampTo(normalizarVolumen(volumen), rampDuration);
     } else {
       canalDelBajo[id].volume.value = normalizarVolumen(volumen);
-    }    
-    
+    }
+
     canalDelBajo[id].pan.value = (paneo * 2) - 1;
 
     // Update wet/dry values if provided
@@ -1121,9 +1235,16 @@ if (rampDuration > 0) {
     if (config.reverbWet !== undefined) {
       efectosDelBajo[id].reverb.wet.value = config.reverbWet;
     }
+    // bajoSampler[id].connect(canalDelBajo[id]);
+    // ✅ Reconnect if sampler changed
+    if (isNewSampler) {
+      bajoSampler[id].chain(
+        efectosDelBajo[id].delay,
+        efectosDelBajo[id].reverb,
+        canalDelBajo[id]
+      );
+    }
   }
-
-  // bajoSampler[id].connect(canalDelBajo[id]);
 }
 
 
@@ -1160,13 +1281,20 @@ export function bajoEffectsOn(id, preset = 'apagado') {
 
 // let seq;
 
-export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSonido, cuantizar, notas, parteTipo, parte, octavaAbsoluta, adornarPunteo, efectos, rampDuration) {
+export async function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSonido, cuantizar, notas, parteTipo, parte, octavaAbsoluta, adornarPunteo, efectos, rampDuration, docId) {
+  // Remove the return new Promise wrapper since async functions already return promises
+
+  docId = docId || 'global';
+
 
   // const id = instrumento + "_" + identificador; //bajo_default
+  // Asegúrate de tener docId pasado a la función (docId = 'global' por defecto)
+  sequencesByDoc[docId] = sequencesByDoc[docId] || {};
+  const sequences = sequencesByDoc[docId];
 
   if (sequences[id]) {
     sequences[id].stop();
-    sequences[id].dispose();
+    sequences[id].dispose && sequences[id].dispose();
     // sequences[id] = null;
     delete sequences[id];  // Remove the reference to the old sequence
 
@@ -1199,24 +1327,26 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
     // let indiceSonido = s.sonidos.bajo[indiceSonido].nombre;
     bajoSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig)
 
+    // ✅ Wait for the sampler to be ready
+    await bajoSampler[id].loaded;
 
     if (parte.length == 0) {
       console.log("¡Comenzando secuencia del bajo!");
 
       // Create and start the sequence
 
-      Tone.loaded().then(() => {
-        console.log("Sampler fully loaded!");
-        sequences[id] = new Tone.Sequence((time, note) => {
-          const letterNote = typeof note === "number"
-            ? Tone.Frequency(note, "midi").toNote()  // condition ? expressionIfTrue : expressionIfFalse;
-            : note;
-          bajoSampler[id].triggerAttackRelease(letterNote, 0.1, time);
-        }, notas, '1m');   // '1m' represents one measure as the interval
+      await Tone.loaded()
+      console.log("Sampler fully loaded!");
+      sequences[id] = new Tone.Sequence((time, note) => {
+        const letterNote = typeof note === "number"
+          ? Tone.Frequency(note, "midi").toNote()  // condition ? expressionIfTrue : expressionIfFalse;
+          : note;
+        bajoSampler[id].triggerAttackRelease(letterNote, 0.1, time);
+      }, notas, '1m');   // '1m' represents one measure as the interval
 
-        sequences[id].start(0);
+      sequences[id].start(0);
+      return sequences[id]; // ✅ Resolve here too
 
-      });
 
       //  bajo (n [[@], [𝅗𝅥 𝅗𝅥], [𝅘𝅥 𝅘𝅥 𝅘𝅥 𝅘𝅥], []])   
     } else if (parte.length > 0) {
@@ -1226,24 +1356,24 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
       let _parte = a.lineaDelBajo(parte, _armonia, octavaAbsoluta);
       console.log("lineaDelBajo", _parte);
 
-      Tone.loaded().then(() => {
-        sequences[id] = new Tone.Part((time, value) => {
-          if (value.note !== null) {
-            bajoSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
-          }
-        }, _parte).start(0);
+      await Tone.loaded()
+      sequences[id] = new Tone.Part((time, value) => {
+        if (value.note !== null) {
+          bajoSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
+      }, _parte);
 
 
-        console.log('Sequence created for bajo', id, sequences[id]);
+      console.log('Sequence created for bajo', id, sequences[id]);
 
-        sequences[id].loop = true; // Enable looping
-        sequences[id].humanize = "128n"; // Add humanization
+      sequences[id].loop = true; // Enable looping
+      sequences[id].humanize = "128n"; // Add humanization
 
-        let numeroDeCompases = a.numberOfMeasures(_parte);
-        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+      let numeroDeCompases = a.numberOfMeasures(_parte);
+      sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+      sequences[id].start(0);  // ✅ Start separately
+      return sequences[id]; // ✅ Resolve here too
 
-
-      })
     }
   }
 
@@ -1274,6 +1404,9 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
     // let indiceSonido = s.sonidos.teclado[indiceSonido].nombre;  
     tecladoSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
 
+    // ✅ Wait for the sampler to be ready
+    await tecladoSampler[id].loaded;
+
     if (parteTipo === null) {  // Logical operator corrected
       console.log("¡Comenzando secuencia del teclado!");
 
@@ -1290,16 +1423,17 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
       //    });
 
 
-      Tone.loaded().then(() => {
-        sequences[id] = new Tone.Sequence((time, note) => {
-          const letterNote = typeof note === "number"
-            ? Tone.Frequency(note, "midi").toNote()  // condition ? expressionIfTrue : expressionIfFalse;
-            : note;
-          tecladoSampler[id].triggerAttackRelease(letterNote, 0.1, time);
-        }, notas, '1m').start(0);
-      });
+      await Tone.loaded()
+      sequences[id] = new Tone.Sequence((time, note) => {
+        const letterNote = typeof note === "number"
+          ? Tone.Frequency(note, "midi").toNote()  // condition ? expressionIfTrue : expressionIfFalse;
+          : note;
+        tecladoSampler[id].triggerAttackRelease(letterNote, 0.1, time);
+      }, notas, '1m');
 
 
+      sequences[id].start(0);
+      return sequences[id]; // ✅ Return here
 
     } else if (parteTipo === 'acompanamiento' || parteTipo === 'acompañamiento') {
       console.log("¡Comenzando acompañamiento del teclado!")
@@ -1317,22 +1451,23 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
       // :: [{time, note, duration} , ... ] -> [{tonal chord}] -> [{time, note duration}, ...]
       // function listaDeGradosAlistaDeNotasTeclado(elementosParteList, chordPropertiesList, octavaAbsoluta)
 
-      Tone.loaded().then(() => {
-        sequences[id] = new Tone.Part((time, value) => {
-          if (value.note !== null) {
-            tecladoSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
-          }
-          // console.log("acorde", value.note);
-        }, parteTeclado_).start(0);
+      await Tone.loaded();
+      sequences[id] = new Tone.Part((time, value) => {
+        if (value.note !== null) {
+          tecladoSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
+        // console.log("acorde", value.note);
+      }, parteTeclado_);
 
-        console.log('Sequence created for teclado' + id.toString(), id, sequences[id]);
+      console.log('Sequence created for teclado' + id.toString(), id, sequences[id]);
 
-        sequences[id].loop = true; // Enable looping
-        sequences[id].humanize = "128n"; // Add humanization
+      sequences[id].loop = true; // Enable looping
+      sequences[id].humanize = "128n"; // Add humanization
 
-        let numeroDeCompases = a.numberOfMeasures(parteTeclado_);
-        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
-      });
+      let numeroDeCompases = a.numberOfMeasures(parteTeclado_);
+      sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+      sequences[id].start(0);  // ✅ Start separately
+      return sequences[id]; // ✅ Resolve here too
 
 
     } else if (parteTipo === 'punteo') {
@@ -1367,25 +1502,26 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
         console.log("melodia auto", false)
       }
 
-      Tone.loaded().then(() => {
-        sequences[id] = new Tone.Part((time, value) => {
-          // Different velocity for ornamental notes
-          const finalVelocity = value.ornament ? value.velocity * 0.8 : value.velocity;
+      await Tone.loaded()
+      sequences[id] = new Tone.Part((time, value) => {
+        // Different velocity for ornamental notes
+        const finalVelocity = value.ornament ? value.velocity * 0.8 : value.velocity;
 
-          if (value.note !== null) {
-            tecladoSampler[id].triggerAttackRelease(value.note, value.duration, time, finalVelocity);
-            // console.log("Playing note:", value.note, "at", time, "ornament:", !!value.ornament);
-          }
-        }, parteTeclado_).start(0);
+        if (value.note !== null) {
+          tecladoSampler[id].triggerAttackRelease(value.note, value.duration, time, finalVelocity);
+          // console.log("Playing note:", value.note, "at", time, "ornament:", !!value.ornament);
+        }
+      }, parteTeclado_);
 
-        console.log('Enhanced sequence created for teclado' + id.toString(), id, sequences[id]);
+      console.log('Enhanced sequence created for teclado' + id.toString(), id, sequences[id]);
 
-        sequences[id].loop = true; // Enable looping
-        sequences[id].humanize = "128n"; // Add humanization
+      sequences[id].loop = true; // Enable looping
+      sequences[id].humanize = "128n"; // Add humanization
 
-        let numeroDeCompases = a.numberOfMeasures(parteTeclado_);
-        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
-      });
+      let numeroDeCompases = a.numberOfMeasures(parteTeclado_);
+      sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+      sequences[id].start(0);  // ✅ Start separately
+      return sequences[id]; // ✅ Resolve here too
       // const parteTeclado = [{ "time": "0:1:0", "note": ['C4', 'E4', 'G4'], "duration": "4n" }, { "time": "0:3:0", "note": ['G4', 'B4', 'D4'], "duration": "4n" }] 
     }
   }
@@ -1420,40 +1556,44 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
     // let indiceSonido = s.sonidos.bombo[indiceSonido].nombre;
     bomboSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
 
+    // ✅ Wait for the sampler to be ready
+    await bomboSampler[id].loaded;
+
     if (parte.length == 0) {
       console.log("¡Comenzando secuencia del bombo!");
 
       // Create and start the sequence
 
-      Tone.loaded().then(() => {
-        console.log("Sampler fully loaded!");
-        sequences[id] = new Tone.Sequence((time, note) => {
-          bomboSampler[id].triggerAttackRelease(note, 0.1, time);
-        }, notas, '1m');   // '1m' represents one measure as the interval
+      await Tone.loaded();
+      console.log("Sampler fully loaded!");
+      sequences[id] = new Tone.Sequence((time, note) => {
+        bomboSampler[id].triggerAttackRelease(note, 0.1, time);
+      }, notas, '1m');   // '1m' represents one measure as the interval
 
-        sequences[id].start(0);
-
-      });
+      sequences[id].start(0);
+      return sequences[id]; // ✅ Resolve here too
 
     } else if (parte.length > 0) {
       console.log("¡Comenzando ritmo del bombo!")
 
       let parteDelBombo = r.filtrarYaplanarParte(parte)
 
-      Tone.loaded().then(() => {
-        sequences[id] = new Tone.Part((time, value) => {
-          if (value.note !== null) {
-            bomboSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
-          }
-        }, parteDelBombo).start(0);
+      await Tone.loaded();
+      sequences[id] = new Tone.Part((time, value) => {
+        if (value.note !== null) {
+          bomboSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
+      }, parteDelBombo);
 
-        console.log('Sequence created for bombo' + id.toString(), id, sequences[id]);
+      console.log('Sequence created for bombo' + id.toString(), id, sequences[id]);
 
-        sequences[id].loop = true; // Enable looping
-        sequences[id].humanize = "128n"; // Add humanization  
-        let numeroDeCompases = a.numberOfMeasures(parteDelBombo);
-        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
-      })
+      sequences[id].loop = true; // Enable looping
+      sequences[id].humanize = "128n"; // Add humanization  
+      let numeroDeCompases = a.numberOfMeasures(parteDelBombo);
+      sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+      sequences[id].start(0);  // ✅ Start separately
+      return sequences[id]; // ✅ Resolve here too
+
     }
   }
 
@@ -1484,40 +1624,43 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
     jamblockSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
 
+
+    await jamblockSampler[id].loaded;
+
     if (parte.length == 0) {
       console.log("¡Comenzando secuencia del jamblock!");
 
       // Create and start the sequence
 
-      Tone.loaded().then(() => {
-        console.log("Sampler fully loaded!");
-        sequences[id] = new Tone.Sequence((time, note) => {
-          jamblockSampler[id].triggerAttackRelease(note, 0.1, time);
-        }, notas, '1m');   // '1m' represents one measure as the interval
+      await Tone.loaded()
+      console.log("Sampler fully loaded!");
+      sequences[id] = new Tone.Sequence((time, note) => {
+        jamblockSampler[id].triggerAttackRelease(note, 0.1, time);
+      }, notas, '1m');   // '1m' represents one measure as the interval
 
-        sequences[id].start(0);
-
-      });
+      sequences[id].start(0);
+      return sequences[id]; // ✅ Resolve here too
 
     } else if (parte.length > 0) {
       console.log("¡Comenzando ritmo del jamblock!")
 
       let parteDelJamblock = r.filtrarYaplanarParte(parte)
 
-      Tone.loaded().then(() => {
-        sequences[id] = new Tone.Part((time, value) => {
-          if (value.note !== null) {
-            jamblockSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
-          }
-        }, parteDelJamblock).start(0);
+      await Tone.loaded()
+      sequences[id] = new Tone.Part((time, value) => {
+        if (value.note !== null) {
+          jamblockSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
+      }, parteDelJamblock);
 
-        console.log('Sequence created for jamblock' + id.toString(), id, sequences[id]);
+      console.log('Sequence created for jamblock' + id.toString(), id, sequences[id]);
 
-        sequences[id].loop = true; // Enable looping
-        sequences[id].humanize = "128n"; // Add humanization  
-        let numeroDeCompases = a.numberOfMeasures(parteDelJamblock);
-        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
-      })
+      sequences[id].loop = true; // Enable looping
+      sequences[id].humanize = "128n"; // Add humanization  
+      let numeroDeCompases = a.numberOfMeasures(parteDelJamblock);
+      sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+      sequences[id].start(0);  // ✅ Start separately
+      return sequences[id]; // ✅ Resolve here too
     }
   }
 
@@ -1550,21 +1693,21 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
     // let indiceSonido = s.sonidos.contratiempo[indiceSonido].nombre;
     contrasSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
+    await contrasSampler[id].loaded;
 
     if (parte.length == 0) {
       console.log("¡Comenzando secuencia del contratiempo!");
 
       // Create and start the sequence
 
-      Tone.loaded().then(() => {
-        console.log("Sampler fully loaded!");
-        sequences[id] = new Tone.Sequence((time, note) => {
-          contrasSampler[id].triggerAttackRelease(note, 0.1, time);
-        }, notas, '1m');   // '1m' represents one measure as the interval
+      await Tone.loaded()
+      console.log("Sampler fully loaded!");
+      sequences[id] = new Tone.Sequence((time, note) => {
+        contrasSampler[id].triggerAttackRelease(note, 0.1, time);
+      }, notas, '1m');   // '1m' represents one measure as the interval
 
-        sequences[id].start(0);
-
-      });
+      sequences[id].start(0);
+      return sequences[id]; // ✅ Resolve here too
 
     } else if (parte.length > 0) {
       console.log("¡Comenzando ritmo del contratiempo!")
@@ -1572,20 +1715,21 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
       let parteDelContratiempo = r.filtrarYaplanarParte(parte)
 
-      Tone.loaded().then(() => {
-        sequences[id] = new Tone.Part((time, value) => {
-          if (value.note !== null) {
-            contrasSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
-          }
-        }, parteDelContratiempo).start(0);
+      await Tone.loaded()
+      sequences[id] = new Tone.Part((time, value) => {
+        if (value.note !== null) {
+          contrasSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
+      }, parteDelContratiempo);
 
-        console.log('Sequence created for contras' + id.toString(), id, sequences[id]);
+      console.log('Sequence created for contras' + id.toString(), id, sequences[id]);
 
-        sequences[id].loop = true; // Enable looping
-        sequences[id].humanize = "128n"; // Add humanization  
-        let numeroDeCompases = a.numberOfMeasures(parteDelContratiempo);
-        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
-      });
+      sequences[id].loop = true; // Enable looping
+      sequences[id].humanize = "128n"; // Add humanization  
+      let numeroDeCompases = a.numberOfMeasures(parteDelContratiempo);
+      sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+      sequences[id].start(0);  // ✅ Start separately
+      return sequences[id]; // ✅ Resolve here too
     }
   }
 
@@ -1616,21 +1760,21 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
     }
     // let indiceSonido = s.sonidos.congas[indiceSonido].nombre;
     congaSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
+    await congaSampler[id].loaded;
 
     if (parte.length == 0) {
       console.log("¡Comenzando secuencia del conga!");
 
       // Create and start the sequence
 
-      Tone.loaded().then(() => {
-        console.log("Sampler fully loaded!");
-        sequences[id] = new Tone.Sequence((time, note) => {
-          congaSampler[id].triggerAttackRelease(note, 0.1, time);
-        }, notas, '1m');   // '1m' represents one measure as the interval
+      await Tone.loaded();
+      console.log("Sampler fully loaded!");
+      sequences[id] = new Tone.Sequence((time, note) => {
+        congaSampler[id].triggerAttackRelease(note, 0.1, time);
+      }, notas, '1m');   // '1m' represents one measure as the interval
 
-        sequences[id].start(0);
-
-      });
+      sequences[id].start(0);
+      return sequences[id]; // ✅ Resolve here too
 
     } else if (parte.length > 0) {
       console.log("¡Comenzando ritmo del conga!")
@@ -1638,20 +1782,21 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
 
       let parteDeLaConga = r.filtrarYaplanarParte(parte)
 
-      Tone.loaded().then(() => {
-        sequences[id] = new Tone.Part((time, value) => {
-          if (value.note !== null) {
-            congaSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
-          }
-        }, parteDeLaConga).start(0);
+      await Tone.loaded();
+      sequences[id] = new Tone.Part((time, value) => {
+        if (value.note !== null) {
+          congaSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
+      }, parteDeLaConga);
 
-        console.log('Sequence created for conga' + id.toString(), id, sequences[id]);
+      console.log('Sequence created for conga' + id.toString(), id, sequences[id]);
 
-        sequences[id].loop = true; // Enable looping
-        sequences[id].humanize = "128n"; // Add humanization  
-        let numeroDeCompases = a.numberOfMeasures(parteDeLaConga);
-        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
-      });
+      sequences[id].loop = true; // Enable looping
+      sequences[id].humanize = "128n"; // Add humanization  
+      let numeroDeCompases = a.numberOfMeasures(parteDeLaConga);
+      sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+      sequences[id].start(0);  // ✅ Start separately
+      return sequences[id]; // ✅ Resolve here too
     }
   }
 
@@ -1683,46 +1828,45 @@ export function tocaSecuencia(armonia, instrumento, id, volumen, paneo, indiceSo
     }
     // let indiceSonido = s.sonidos.guiro[indiceSonido].nombre;
     guiroSamplerF(indiceSonido, id, volumen, rampDuration, paneo, efectosConfig);
+    await guiroSampler[id].loaded;
 
     if (parte.length == 0) {
       console.log("¡Comenzando secuencia del guiro!");
 
       // Create and start the sequence
 
-      Tone.loaded().then(() => {
-        console.log("Sampler fully loaded!");
-        sequences[id] = new Tone.Sequence((time, note) => {
-          guiroSampler[id].triggerAttackRelease(note, 0.1, time);
-        }, notas, '1m');   // '1m' represents one measure as the interval
+      await Tone.loaded()
+      console.log("Sampler fully loaded!");
+      sequences[id] = new Tone.Sequence((time, note) => {
+        guiroSampler[id].triggerAttackRelease(note, 0.1, time);
+      }, notas, '1m');   // '1m' represents one measure as the interval
 
-        sequences[id].start(0);
-
-      });
+      sequences[id].start(0);
+      return sequences[id]; // ✅ Resolve here too
 
     } else if (parte.length > 0) {
       console.log("¡Comenzando ritmo del guiro!")
 
       let parteDelguiro = r.filtrarYaplanarParte(parte)
 
-      Tone.loaded().then(() => {
-        sequences[id] = new Tone.Part((time, value) => {
-          if (value.note !== null) {
-            guiroSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
-          }
-        }, parteDelguiro).start(0);
+      await Tone.loaded()
+      sequences[id] = new Tone.Part((time, value) => {
+        if (value.note !== null) {
+          guiroSampler[id].triggerAttackRelease(value.note, value.duration, time, value.velocity);
+        }
+      }, parteDelguiro);
 
-        console.log('Sequence created for guiro' + id.toString(), id, sequences[id]);
+      console.log('Sequence created for guiro' + id.toString(), id, sequences[id]);
 
-        sequences[id].loop = true; // Enable looping
-        sequences[id].humanize = "128n"; // Add humanization
+      sequences[id].loop = true; // Enable looping
+      sequences[id].humanize = "128n"; // Add humanization
 
-        let numeroDeCompases = a.numberOfMeasures(parteDelguiro);
-        sequences[id].loopEnd = numeroDeCompases + 1 + "m"
-      })
+      let numeroDeCompases = a.numberOfMeasures(parteDelguiro);
+      sequences[id].loopEnd = numeroDeCompases + 1 + "m"
+      sequences[id].start(0);  // ✅ Start separately
+      return sequences[id]; // ✅ Resolve here too
     }
   }
-
-
 }
 
 

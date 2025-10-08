@@ -3,6 +3,7 @@
 
 <head>
   <title>Seis8s</title>
+
   <link rel="icon" type="image/x-icon"
     href="https://cdn.glitch.global/1c9491c3-d804-48fe-9d1e-06e2c4f58528/seis8sTitulo.ico?v=1720029681684">
 
@@ -18,6 +19,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Permanent Marker" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Hanalei Fill" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fascinate" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://unpkg.com/peggy"></script>
@@ -39,8 +42,7 @@
 
   <div id="app">
 
-    <svg id="mySVG"
-    :viewBox="viewBoxValue" fill="none" xmlns="http://www.w3.org/2000/svg"
+    <svg id="mySVG" :viewBox="viewBoxValue" fill="none" xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" :width="svgWidth" :height="svgHeight">
 
       <rect :width="svgWidth" :height="svgHeight" fill="url(#paint0_linear_1_2)" />
@@ -58,7 +60,7 @@
               <rect id="barraHorizontalMTituloenuIzquierdo" x="-0.432373" v-bind:y="barraHorizontalTituloIzquierdoYpos"
                 width="341.827" height="62.9114" rx="4.5" stroke="black" />
 
-              <text id="saludos" v-show="mostrarTituloPanelIzquierdo" fill="#FAFF00" xml:space="preserve"
+              <text @click="showSaludosTextEditorOrListOfSaludos" id="saludos" v-show="mostrarTituloPanelIzquierdo" fill="#FAFF00" xml:space="preserve"
                 style="white-space: pre" font-family="Permanent Marker" font-size="32" letter-spacing="0em">
                 <tspan x="110.643" v-bind:y="tituloPanelIzquierdoYpos">{{tituloPanelIzquierdo}}</tspan>
               </text>
@@ -179,7 +181,7 @@ rx="5.5" stroke="black"/> -->
             <!-- Panel de saludos 1  -->
 
 
-            <g id="panelSaludos">
+            <g v-show="saludosEditorDeTexto == true" id="panelSaludos">
               <path id="saludoTextBox"
                 d="M35.437 223.914H298.296C298.296 223.914 313.284 227.251 319.617 235.073C325.95 242.896 329.908 255.908 329.908 255.908L288.743 447.039C288.743 447.039 288.743 454.286 272.911 467.874C257.078 481.461 247.579 477.838 247.579 477.838H75.797L31.4662 534L10.0924 264.966C10.0924 264.966 10.6267 255.248 16.2968 242.896C21.9668 230.544 35.437 223.914 35.437 223.914Z"
                 fill="#28F300" stroke="#F9F9F9" stroke-width="2" v-bind:transform="translatePanelSaludos" />
@@ -233,11 +235,32 @@ rx="5.5" stroke="black"/> -->
                   <span class="material-symbols-outlined iconsSaldudos">forward_to_inbox</span>
                 </foreignObject>
               </g>
-
             </g>
           </g>
         </g>
+        <!-- greetings displayed -->
+        <g v-show="saludosEditorDeTexto == false" id="panelGreetingList">
+          <foreignObject x="10" v-bind:y="saludosEditorYpos - 20" width="300" v-bind:height="contenedorListaDeSaludosHeight" >
+            <div xmlns="http://www.w3.org/1999/xhtml"
+              style="font-family: 'Permanent Marker'; color: #fff; display: flex; flex-direction: column; height: 100%; padding-top: 1%;">
 
+              <h3 style="margin: auto;">Scan To Send Your Greetings!</h3>
+              <img style="width: 30%; margin: auto; padding-top: 1%" src="/images/qrSaludos.png" />
+
+              <!-- Scrollable list -->
+              <ul style="overflow: auto; flex: 1;">
+                <li v-for="(saludo, index) in saludosRecibidos" :key="saludo.id"
+                  style="display: flex; align-items: flex-start; flex-wrap: wrap; list-style: none; ">
+                  <input type="checkbox" v-model="saludo.selected" style="width: 5%;">
+                  <strong>{{ saludo.name }}:</strong> {{ saludo.message }}
+                </li>
+              </ul>
+
+              <button style="  font-family: 'Permanent Marker'; border-radius: 5px; background-color: yellow; " @click="playSelectedGreetings">Play
+                Selected</button>
+            </div>
+          </foreignObject>
+        </g>
 
 
 
@@ -312,19 +335,17 @@ v-bind:x="barraHorizontalSuperiorXpos"
                   <div class="textarea-wrapper">
                     <div class="background-tile" :style="backgroundStyle"></div>
 
-                  <!-- editorDeTextoWidth -->
-                  <!-- editorDeTextoHeight -->
-                  <textarea :name="doc.name" :id="doc.textareaId" 
-                  :style="[{ fontSize: textSize }]"
-                    v-model="doc.textEditor" @input="convertInput" @keydown.shift.enter.prevent="evaluate"
-                    @keydown.shift.e.prevent="mandarSaludos()"
-                    @keydown.ctrl="stopShortCut($event); incrementarTamanoDeTextoShortCut($event); reducirTamanoDeTextoShortCut($event);"
-                    @keydown.ctrl.s.prevent="downloadText" tabindex="0"
-                    > 
+                    <!-- editorDeTextoWidth -->
+                    <!-- editorDeTextoHeight -->
+                    <textarea :name="doc.name" :id="doc.textareaId" :style="[{ fontSize: textSize }]"
+                      v-model="doc.textEditor" @input="convertInput" @keydown.shift.enter.prevent="evaluate"
+                      @keydown.shift.e.prevent="mandarSaludos()"
+                      @keydown.ctrl="stopShortCut($event); incrementarTamanoDeTextoShortCut($event); reducirTamanoDeTextoShortCut($event);"
+                      @keydown.ctrl.s.prevent="downloadText" tabindex="0">
                   </textarea>
                   </div>
-               
-                  
+
+
 
                 </foreignobject>
               </g>
@@ -345,13 +366,11 @@ v-bind:x="barraHorizontalSuperiorXpos"
 
                   <foreignObject @click="expandirPantallaVerticalmente()" v-bind:x="iconosMenuDerechoXpos"
                     v-bind:y="expandRightCircleIconYpos" width="40" height="40">
-                    <span class="material-symbols-outlined iconos" 
-                    :style="{
+                    <span class="material-symbols-outlined iconos" :style="{
                       fontSize: '2em',
                       transition: 'transform 0.3s ease',
                       transform: pantallaCompletaVerticalmente ? 'rotate(180deg)' : 'rotate(0deg)'
-                    }"
-                    > expand_circle_up </span>
+                    }"> expand_circle_up </span>
                   </foreignObject>
                 </g>
               </g>
@@ -363,13 +382,11 @@ v-bind:x="barraHorizontalSuperiorXpos"
 
                   <foreignObject @click="expandirPantallaHorizontalmente()" v-bind:x="iconosMenuDerechoXpos"
                     v-bind:y="expandUpCircleIconYpos" width="40" height="40">
-                    <span class="material-symbols-outlined iconos"
-                    :style="{
+                    <span class="material-symbols-outlined iconos" :style="{
                       fontSize: '2em',
                       transition: 'transform 0.3s ease',
                       transform: pantallaCompletaHorizontalmente ? 'rotate(0deg)' : 'rotate(180deg)'
-                    }"
-                     > expand_circle_right </span>
+                    }"> expand_circle_right </span>
                   </foreignObject>
                 </g>
               </g>

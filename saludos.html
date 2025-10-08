@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Send a Greeting | Seis8s</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* Base layout */
+        body {
+            margin: 0;
+            font-family: "DM Sans", system-ui, sans-serif;
+            background: linear-gradient(135deg, #1e1e2f, #3b0a45, #7a003c);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        /* Glassy container */
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            padding: 2rem 3rem;
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        /* Inputs */
+        input,
+        textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            resize: none;
+            transition: background 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        /* Button */
+        button {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            background: linear-gradient(135deg, #ff2d55, #ff6b81);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.03);
+            background: linear-gradient(135deg, #ff4f70, #ff8da1);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Small footer */
+        .footer {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>🎶 Send a Greeting</h2>
+        <p class="footer">Greetings appear live in Seis8s ✨</p>
+        <input type="text" id="name" placeholder="Your name" />
+        <textarea id="message" maxlength="200" placeholder="Write your greeting..."></textarea>
+        <button onclick="sendGreeting()">Send</button>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://vwwfwdregcyglrqbjdlq.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3d2Z3ZHJlZ2N5Z2xycWJqZGxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5Mzg2NDUsImV4cCI6MjA3NTUxNDY0NX0.jOD0K0BZiNs2_W2C1tfbbRsTM4pxDXpGnA-QDIYrPPU';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function sendGreeting() {
+            const name = document.getElementById('name').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            if (!name || !message) return alert("Please fill both fields!");
+
+            const { error } = await supabaseClient
+                .from('greetings')
+                .insert([{ name, message, published: true }]);
+
+            if (error) {
+                console.error(error);
+                alert("❌ Failed to send greeting");
+            } else {
+                alert("✅ Greeting sent!");
+                document.getElementById('name').value = '';
+                document.getElementById('message').value = '';
+            }
+        }
+    </script>
+</body>
+
+</html>
