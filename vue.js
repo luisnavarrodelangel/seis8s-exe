@@ -12,8 +12,9 @@ const app = Vue.createApp({
   data() {
     return {
       // greetings logic
-      
+
       saludosRecibidos: [],  // live greetings
+      allSelected: true, // default all selected
       playing: false,        // global play state
       currentIndex: 0,       // for TTS queue
       selected: null,     // selected greeting from dropdown
@@ -173,6 +174,11 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
       return this.svgHeight - this.consoleHeight - this.barraHorizontalSuperiorHeight - this.alturaBarraHorizontalPanelDerecho
     },
 
+    saludosContenedorHeight() {
+      return this.svgHeight - this.barraHorizontalSuperiorHeight - this.alturaBarraHorizontalPanelDerecho
+
+    },
+
     calcularAlturaDelMenuDerecho() {
       return this.svgHeight - this.barraHorizontalSuperiorHeight - this.alturaBarraHorizontalPanelDerecho
     },
@@ -272,67 +278,77 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
 
   },
 
+  watch: {
+    saludosRecibidos: {
+      handler() {
+        this.allSelected = this.saludosRecibidos.every(s => s.selected);
+      },
+      deep: true
+    }
+  },
+
 
   methods: {
+    // select/deselect all greetings
+    toggleSelectAll() {
+      this.saludosRecibidos.forEach(s => s.selected = this.allSelected);
+    },
+
     // play/pause greetings
-  async playSelectedGreetings() {
-  const selectedMessages = this.saludosRecibidos.filter(s => s.selected);
+    async playSelectedGreetings() {
+      const selectedMessages = this.saludosRecibidos.filter(s => s.selected);
 
-  for (let i = 0; i < selectedMessages.length; i++) {
-    const saludo = selectedMessages[i];
-    await this.playMessage(saludo);
+      for (let i = 0; i < selectedMessages.length; i++) {
+        const saludo = selectedMessages[i];
+        await this.playMessage(saludo);
 
-    // Remove from frontend list
-    this.saludosRecibidos = this.saludosRecibidos.filter(s => s.id !== saludo.id);
+        // Remove from frontend list
+        this.saludosRecibidos = this.saludosRecibidos.filter(s => s.id !== saludo.id);
 
-    // Delete from Supabase
-    try {
-      const { error } = await this.supabaseClient
-        .from('greetings')
-        .delete()
-        .eq('id', saludo.id);
+        // Delete from Supabase
+        try {
+          const { error } = await this.supabaseClient
+            .from('greetings')
+            .delete()
+            .eq('id', saludo.id);
 
-      if (error) {
-        console.error('Failed to delete greeting:', error);
-      } else {
-        console.log(`Deleted greeting from Supabase: ${saludo.id}`);
+          if (error) {
+            console.error('Failed to delete greeting:', error);
+          } else {
+            console.log(`Deleted greeting from Supabase: ${saludo.id}`);
+          }
+        } catch (e) {
+          console.error('Error deleting greeting:', e);
+        }
       }
-    } catch (e) {
-      console.error('Error deleting greeting:', e);
-    }
-  }
-},
+    },
 
     playMessage(saludo) {
+
+      Tone.Destination.volume.value = -10;
+      if (saludo.published) {
+        this.textoDelBanner = `${saludo.name}: ${saludo.message}`;
+      }
+
       return new Promise((resolve) => {
         const utterance = new SpeechSynthesisUtterance(`${saludo.name} says: ${saludo.message}`);
         if (this.selectedVoice) utterance.voice = this.selectedVoice;
 
-        utterance.onend = () => resolve();
+        // Reduce global volume
+        const originalVolume = this.programa.estado.estadoGlobal.volumen;
+        this.programa.estado.estadoGlobal.volumen = originalVolume * 0.2; // reduce to 20%
+
+        utterance.onend = () => {
+          // Restore volume
+        Tone.Destination.volume.rampTo(0, 0.5); // smooth fade back in over 0.5s
+          resolve();
+        };
+
         window.speechSynthesis.speak(utterance);
       });
     },
-    // togglePlayPause() {
-    //   this.playing = !this.playing;
-    //   if (this.playing && this.saludosRecibidos.length > 0) {
-    //     this.playNextGreeting();
-    //   }
-    // },
 
-    // playNextGreeting() {
-    //   if (!this.playing || this.currentIndex >= this.saludosRecibidos.length) return;
 
-    //   const saludo = this.saludosRecibidos[this.currentIndex];
-    //   const utterance = new SpeechSynthesisUtterance(`${saludo.name} says: ${saludo.message}`);
-    //   if (this.selectedVoice) utterance.voice = this.selectedVoice;
-
-    //   utterance.onend = () => {
-    //     this.currentIndex++;
-    //     this.playNextGreeting();
-    //   };
-
-    //   window.speechSynthesis.speak(utterance);
-    // },
 
     handleResize() {
       this.svgWidth = window.innerWidth;
@@ -795,10 +811,13 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
 
     mandarSaludos() {
 
-
-
       const message = new SpeechSynthesisUtterance();
       const speechSynthesis = window.speechSynthesis;
+
+      // Set the master volume to -10 dB
+      Tone.Destination.volume.value = -10;
+
+
 
       message.volume = 1;
       // If there are Spanish voices available, use the selected one
@@ -810,12 +829,21 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
       message.text = this.saludos;
       speechSynthesis.speak(message);
 
+
+      // When the speech finishes, restore volume
+      message.onend = () => {
+        Tone.Destination.volume.rampTo(0, 0.5); // smooth fade back in over 0.5s
+      };
+
+
       // Publish greeting in banner
       setTimeout(() => {
         if (this.publish == true) {
           this.textoDelBanner = this.saludos;
         };
       }, 0); // Delay the update of textoDelBanner by 10 seconds, 10000 milliseconds = 10 seconds
+
+
     },
 
 
@@ -936,7 +964,7 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
     showSaludosTextEditorOrListOfSaludos() {
       if (this.tituloPanelIzquierdo = 'Saludos') {
         this.saludosEditorDeTexto = !this.saludosEditorDeTexto
-      } 
+      }
     },
 
     mostrarOpcionAcercaDe() {

@@ -27,7 +27,7 @@ export function establecerTempo(t) {
 
   if (Tone.Transport.state !== "started") {
     // const startTime = Tone.now() + 0.1;
-    Tone.Transport.start(startTime);
+    // Tone.Transport.start(startTime);
     Tone.Transport.start("+0.1"); 
     // elay to be safe
   }
@@ -1868,7 +1868,3 @@ export async function tocaSecuencia(armonia, instrumento, id, volumen, paneo, in
     }
   }
 }
-
-
-
-
