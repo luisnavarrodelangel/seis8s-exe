@@ -334,10 +334,6 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
         const utterance = new SpeechSynthesisUtterance(`${saludo.name} says: ${saludo.message}`);
         if (this.selectedVoice) utterance.voice = this.selectedVoice;
 
-        // Reduce global volume
-        const originalVolume = this.programa.estado.estadoGlobal.volumen;
-        this.programa.estado.estadoGlobal.volumen = originalVolume * 0.2; // reduce to 20%
-
         utterance.onend = () => {
           // Restore volume
         Tone.Destination.volume.rampTo(0, 0.5); // smooth fade back in over 0.5s
