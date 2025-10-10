@@ -336,7 +336,7 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
 
         utterance.onend = () => {
           // Restore volume
-        Tone.Destination.volume.rampTo(0, 0.5); // smooth fade back in over 0.5s
+          Tone.Destination.volume.rampTo(0, 0.5); // smooth fade back in over 0.5s
           resolve();
         };
 
@@ -514,6 +514,7 @@ jam (v 0.9, p 0.75) ritmo [𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮 𝅘𝅥 𝅘𝅥𝅮 𝅘𝅥𝅮]
     stop() {
       const docId = 'doc_' + this.indiceDelDocumentoActivo;
       this.programa.stop(docId);
+
     },
 
 

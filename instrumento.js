@@ -272,9 +272,13 @@ export function stopSequence(docId = null) {
   });
 
   // Only reset if no other document is active
-  if (!otherDocsActive) {
+  // if (!otherDocsActive) {
+  //   Tone.Transport.position = 0;
+  // }
     Tone.Transport.position = 0;
-  }
+    Tone.Transport.stop();
+    console.log("Transport position reset to 0");
+
 }
 
 export function desconectarPistasBorradas(id, docId) {
