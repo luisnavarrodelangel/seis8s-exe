@@ -115,7 +115,7 @@ export default class Programa {
 
     // Start only the sequences for this doc
     readySequences.forEach(seq => {
-      seq.start(startTime) +  5 // schedule relative to global Transport
+      seq.start(startTime)  // schedule relative to global Transport
     });
 
 
