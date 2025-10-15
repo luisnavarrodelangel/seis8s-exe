@@ -33,7 +33,8 @@ export const sonidos = {
     {nombre: "SeqSquare/"}, //13 
     {nombre: "SqrPulseLd/"}, //14
     {nombre: "Trumpet1/"}, //15
-    {nombre: "Trumpet2/"} //16
+    {nombre: "Trumpet2/"}, //16
+    {nombre: "acordeon/"} //17
 
   ],
   bombo: [
